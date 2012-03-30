@@ -62,5 +62,7 @@ int main(int argc, char *argv[]) {
     // TODO: spawn_child(child)
   }
 
+  free(chlds);
+
   return 0;
 }
