@@ -10,31 +10,35 @@ struct Child {
   char *name;
   char *cmd;
   pid_t pid;
+  struct Child *next;
   // TODO: add respawn counter/timer
 };
 
-struct Children {
-  struct Child children[MAX_CHILDREN];
-  int num_children;
-};
+struct Child *head_ch = NULL;
 
 void establish_handler() {
   // TODO: implement
 }
 
-struct Children* parse_config() {
-  struct Children *chlds = malloc(sizeof(struct Children));
+void parse_config() {
+  struct Child *prev_ch = NULL;
 
-  struct Child chld1 = {.name = "true", .cmd = "/bin/true"};
-  struct Child chld2 = {.name = "false", .cmd = "/bin/false"};
-  chlds->children[0] = chld1;
-  chlds->num_children++;
-  chlds->children[1] = chld2;
-  chlds->num_children++;
+  for (int i = 0; i < 5; i++) {
+    struct Child *ch = malloc(sizeof(struct Child));
+    ch->name = "true";
+    ch->cmd = "/bin/true";
+    ch->pid = 0;
+    ch->next = NULL;
+
+    if (prev_ch) {
+      prev_ch->next = ch;
+    } else {
+      head_ch = ch;
+    }
+    prev_ch = ch;
+  }
 
   // TODO: actual parsing
-
-  return chlds;
 }
 
 void spawn_child(struct Child *chld) {
@@ -51,18 +55,29 @@ void respawn(int signal) {
   }
 }
 
+void cleanup() {
+  struct Child *tmp_ch;
+
+  while (head_ch != NULL) {
+    tmp_ch = head_ch->next;
+    free(head_ch);
+    head_ch = tmp_ch;
+  }
+}
+
 int main(int argc, char *argv[]) {
   // TODO:  establish_handler()
 
-  struct Children *chlds = parse_config();
+  parse_config();
 
-  for (int i = 0; i < chlds->num_children; i++) {
-    struct Child chld = chlds->children[i];
-    printf("%d %s %s\n", i, chld.name, chld.cmd);
+  struct Child *ch;
+
+  for (ch = head_ch; ch; ch = ch->next) {
+    printf("%s %s\n", ch->name, ch->cmd);
     // TODO: spawn_child(child)
   }
 
-  free(chlds);
+  cleanup();
 
   return 0;
 }
