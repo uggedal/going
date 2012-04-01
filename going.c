@@ -16,8 +16,9 @@ struct Child {
 
 struct Child *head_ch = NULL;
 
-void establish_handler() {
-  // TODO: implement
+void establish_handlers() {
+  // TODO: Setup SIGCHLD handler.
+  // TODO: Do cleaup() on SIGINT, SIGTERM, and other relevant signals.
 }
 
 void parse_config() {
@@ -66,8 +67,7 @@ void cleanup() {
 }
 
 int main(int argc, char *argv[]) {
-  // TODO:  establish_handler()
-
+  establish_handlers();
   parse_config();
 
   struct Child *ch;
@@ -75,6 +75,10 @@ int main(int argc, char *argv[]) {
   for (ch = head_ch; ch; ch = ch->next) {
     printf("%s %s\n", ch->name, ch->cmd);
     // TODO: spawn_child(child)
+  }
+
+  for (;;) {
+    // TODO: Serve forever.
   }
 
   cleanup();
