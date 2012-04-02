@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <signal.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -26,8 +28,10 @@ void parse_config() {
 
   for (int i = 0; i < 5; i++) {
     struct Child *ch = malloc(sizeof(struct Child));
-    ch->name = "true";
-    ch->cmd = "/bin/true";
+    // TODO: check that we got memory on the heap.
+
+    ch->name = "echo";
+    ch->cmd = "./test/echo.sh";
     ch->pid = 0;
     ch->next = NULL;
 
@@ -42,15 +46,33 @@ void parse_config() {
   // TODO: actual parsing
 }
 
-void spawn_child(struct Child *chld) {
-  // TODO: implement
+void spawn_child(struct Child *ch) {
+  pid_t ch_pid;
+  char *argv[16];
+
+  argv[0] = basename(ch->cmd);
+  argv[1] = NULL;
+
+  for (;;) {
+    if ((ch_pid = fork()) == 0) {
+      execvp(ch->cmd, argv);
+      // TODO: handle error better than exiting child?
+      _exit(1);
+    } else if (ch_pid == -1) {
+      // TODO: backoff algorithm?
+      sleep(1);
+    } else {
+      ch->pid = ch_pid;
+      return;
+    }
+  }
 }
 
 void respawn(int signal) {
   int status;
-  pid_t child_pid;
+  pid_t ch_pid;
 
-  while ((child_pid = waitpid(-1, &status, WNOHANG)) > 0) {
+  while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
     // TODO: Lookup the pid and start the dead child again.
     // TODO: Possibly add some data about respawns and add a backoff algorithm.
   }
@@ -73,13 +95,11 @@ int main(int argc, char *argv[]) {
   struct Child *ch;
 
   for (ch = head_ch; ch; ch = ch->next) {
-    printf("%s %s\n", ch->name, ch->cmd);
-    // TODO: spawn_child(child)
+    spawn_child(ch);
+    printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
   }
 
-  for (;;) {
-    // TODO: Serve forever.
-  }
+  // TODO: Serve forever.
 
   cleanup();
 
