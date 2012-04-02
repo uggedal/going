@@ -18,11 +18,6 @@ struct Child {
 
 struct Child *head_ch = NULL;
 
-void establish_handlers() {
-  // TODO: Setup SIGCHLD handler.
-  // TODO: Do cleaup() on SIGINT, SIGTERM, and other relevant signals.
-}
-
 void parse_config() {
   struct Child *prev_ch = NULL;
 
@@ -68,14 +63,29 @@ void spawn_child(struct Child *ch) {
   }
 }
 
-void respawn(int signal) {
+static void respawn_handler(int signal) {
+  struct Child *ch;
   int status;
   pid_t ch_pid;
 
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
-    // TODO: Lookup the pid and start the dead child again.
+    // TODO: handle errors from waitpid() call.
     // TODO: Possibly add some data about respawns and add a backoff algorithm.
+
+    for (ch = head_ch; ch; ch = ch->next) {
+      if (ch_pid == ch->pid) {
+        spawn_child(ch);
+        // TODO: remove unsafe non-async printf():
+        printf("respawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
+      }
+    }
   }
+}
+
+void establish_handlers() {
+  // TODO: Setup SIGCHLD handler.
+
+  // TODO: Do cleaup() on SIGINT, SIGTERM, and other relevant signals.
 }
 
 void cleanup() {
@@ -89,17 +99,21 @@ void cleanup() {
 }
 
 int main(int argc, char *argv[]) {
+  struct Child *ch;
+
   establish_handlers();
   parse_config();
 
-  struct Child *ch;
+  // TODO: block SIGCHLD.
 
   for (ch = head_ch; ch; ch = ch->next) {
     spawn_child(ch);
     printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
   }
 
-  // TODO: Serve forever.
+  // TODO: Eternal sigsuspend() with empty mask.
+  //       Should not be neccesary to block SIGCHLD again since
+  //       the originating signal is blocked inside a handler.
 
   cleanup();
 
