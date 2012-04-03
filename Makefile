@@ -1,4 +1,6 @@
-CFLAGS=-Wall -std=c99 -g
+# TODO: Remove debug flag.
+# TODO: Add optimizations.
+CFLAGS=-Wall -g
 
 all: going
 
