@@ -3,9 +3,8 @@ CFLAGS=-std=gnu99 -Wall -O3 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototyp
 all: going
 
 clean:
-	rm -f going
+	@rm -f going
 
 debug:
-	$(MAKE) clean
-	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -g"
-	cppcheck --enable=all going.c
+	@$(MAKE) --no-print-directory clean all CFLAGS="$(CFLAGS) -O0 -g"
+	@cppcheck --enable=all going.c
