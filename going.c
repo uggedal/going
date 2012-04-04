@@ -92,7 +92,7 @@ void cleanup(void) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
   struct Child *ch;
   sigset_t chld_mask;
   siginfo_t si;
