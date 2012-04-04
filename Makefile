@@ -6,4 +6,6 @@ clean:
 	rm -f going
 
 debug:
+	$(MAKE) clean
 	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return -g"
+	cppcheck going.c
