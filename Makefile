@@ -1,4 +1,4 @@
-CFLAGS=-std=gnu99 -Wall -O3
+CFLAGS=-std=gnu99 -Wall -O3 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return
 
 all: going
 
@@ -7,5 +7,5 @@ clean:
 
 debug:
 	$(MAKE) clean
-	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return -g"
+	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -g"
 	cppcheck going.c
