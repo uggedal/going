@@ -18,7 +18,7 @@ static struct Child *head_ch = NULL;
 
 static sigset_t orig_mask;
 
-void parse_config() {
+void parse_config(void) {
   struct Child *prev_ch = NULL;
 
   // TODO: actual parsing
@@ -64,7 +64,7 @@ void spawn_child(struct Child *ch) {
   }
 }
 
-void respawn() {
+void respawn(void) {
   struct Child *ch;
   int status;
   pid_t ch_pid;
@@ -83,7 +83,7 @@ void respawn() {
   }
 }
 
-void cleanup() {
+void cleanup(void) {
   struct Child *tmp_ch;
 
   while (head_ch != NULL) {
