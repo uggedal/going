@@ -57,6 +57,7 @@ TODO
 * Add support for `uid` and `gid`.
 * Possibly add support for `chdir`.
 * Possibly add support for `chroot`.
+* Look into using `scan-build` in debug make target.
 
 [foreman]: http://ddollar.github.com/foreman/
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html
