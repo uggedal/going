@@ -6,4 +6,4 @@ clean:
 	rm -f going
 
 debug:
-	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -g"
+	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return -g"
