@@ -1,4 +1,4 @@
-CFLAGS=-Wall -O3
+CFLAGS=-std=gnu99 -Wall -O3
 
 all: going
 

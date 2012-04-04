@@ -22,8 +22,7 @@ void parse_config(void) {
   struct Child *prev_ch = NULL;
 
   // TODO: actual parsing
-  int i;
-  for (i = 0; i < 5; i++) {
+  for (int i = 0; i < 5; i++) {
     struct Child *ch = malloc(sizeof(struct Child));
     // TODO: check that we got memory on the heap.
 
