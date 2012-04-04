@@ -8,4 +8,4 @@ clean:
 debug:
 	$(MAKE) clean
 	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -g"
-	cppcheck going.c
+	cppcheck --enable=all going.c
