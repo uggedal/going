@@ -50,11 +50,13 @@ void spawn_child(struct Child *ch) {
   for (;;) {
     if ((ch_pid = fork()) == 0) {
       sigprocmask(SIG_SETMASK, &orig_mask, NULL);
+      // TODO: Close file descriptors which should not be inherited or
+      //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
-      // TODO: handle error better than exiting child?
+      // TODO: Handle error better than exiting child?
       _exit(1);
     } else if (ch_pid == -1) {
-      // TODO: backoff algorithm?
+      // TODO: Backoff algorithm?
       sleep(1);
     } else {
       ch->pid = ch_pid;
@@ -69,13 +71,14 @@ void respawn(void) {
   pid_t ch_pid;
 
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
-    // TODO: handle errors from waitpid() call.
+    // TODO: Handle errors from waitpid() call.
 
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
-        // TODO: Possibly add some data about respawns and add a backoff algorithm.
+        // TODO: Possibly add some data about respawns and add a backoff
+        //       algorithm.
         spawn_child(ch);
-        // TODO: remove unsafe non-async printf():
+        // TODO: Remove debug printf():
         printf("respawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
       }
     }
