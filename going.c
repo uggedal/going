@@ -117,5 +117,5 @@ int main(void) {
 
   cleanup();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
