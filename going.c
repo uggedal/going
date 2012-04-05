@@ -57,7 +57,7 @@ void spawn_child(struct Child *ch) {
       _exit(1);
     } else if (ch_pid == -1) {
       // TODO: Backoff algorithm?
-      sleep(1);
+      sleep(EXIT_FAILURE);
     } else {
       ch->pid = ch_pid;
       return;
@@ -108,6 +108,7 @@ int main(void) {
 
   for (ch = head_ch; ch; ch = ch->next) {
     spawn_child(ch);
+    // TODO: Remove debug printf():
     printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
   }
 
@@ -116,7 +117,8 @@ int main(void) {
     respawn();
   }
 
-  // TODO: kill and reap children if we exit abnormally or just let them become zombies?
+  // TODO: Kill and reap children if we exit abnormally or just let them
+  //       become zombies?
 
   cleanup();
 
