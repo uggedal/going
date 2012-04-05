@@ -83,6 +83,12 @@ TODO
     see *Combining Signal and Data Events* in [select_tut(2)][select_tut]
     for more info of the signal safe I/O multiplexers.
 
+### 3.0.0
+
+* Rename going to goingd and create going information utility:
+  - Uptime of children.
+  - More statistics either from /proc or getrusage().
+
 ### Other
 
 * Possibly logging stdin/sterr with custom log per service.
