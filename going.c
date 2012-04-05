@@ -50,6 +50,7 @@ void spawn_child(struct Child *ch) {
   for (;;) {
     if ((ch_pid = fork()) == 0) {
       sigprocmask(SIG_SETMASK, &orig_mask, NULL);
+      // TODO: Should file descriptors 0, 1, 2 be closed or duped?
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
