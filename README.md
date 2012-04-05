@@ -50,7 +50,11 @@ TODO
   - Need to change handling of SIGCHLD to use [pselect(2)][pselect],
     [ppoll(2)][ppoll], [epoll_pwait(2)][epoll] or [signalfd(2)][signalfd] to
     avoid [signal races][race]. Of all the pollers ppoll could be the most
-    efficient for a small set of file descriptors.
+    efficient for a small set of file descriptors but signalfd paired with
+    a normal select, poll, or epoll could be the cleanest implementation
+    requiring no signal handler and global flag set from it. Also
+    see *Combining Signal and Data Events* in [select_tut(2)][select_tut]
+    for more info of the signal safe I/O multiplexers.
 * Logging `going` events to syslog.
 * Possibly logging stdin/sterr with custom log per service.
   - Need to switch handling of SIGCHLD as for `inotify`. If ppoll is used
@@ -67,3 +71,4 @@ TODO
 [epoll]: http://www.kernel.org/doc/man-pages/online/pages/man2/epoll_wait.2.html
 [signalfd]: http://www.kernel.org/doc/man-pages/online/pages/man2/signalfd.2.html
 [race]: http://www.linuxprogrammingblog.com/code-examples/using-pselect-to-avoid-a-signal-race
+[select_tut]: http://www.kernel.org/doc/man-pages/online/pages/man2/select_tut.2.html
