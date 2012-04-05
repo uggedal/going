@@ -42,7 +42,7 @@ Inspiration
 TODO
 ----
 
-### 0.1.0
+### 1.0.0
 
 * Reading configurations from `/etc/going.d`.
 * Ability to change config directory with a `-d` argument.
@@ -56,13 +56,21 @@ TODO
 * Github project page.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
+* Tag releases in git.
 
-### 0.2.0
+### 1.1.0
 
 * Implement gracefull reloading of configurations by listening on SIGHUP
   and document usage with `kill -s HUP pid`.
 
-### 0.3.0
+### 1.2.0
+
+* Add support for setting the environment.
+* Add support for `uid` and `gid`.
+* Possibly add support for `chdir`.
+* Possibly add support for `chroot`.
+
+### 2.0.0
 
 * Use `inotify` to detect new configs (and stop services in remove configs).
   - Should make SIGHUP reloading obselete.
@@ -74,13 +82,6 @@ TODO
     requiring no signal handler and global flag set from it. Also
     see *Combining Signal and Data Events* in [select_tut(2)][select_tut]
     for more info of the signal safe I/O multiplexers.
-
-### 0.4.0
-
-* Add support for setting the environment.
-* Add support for `uid` and `gid`.
-* Possibly add support for `chdir`.
-* Possibly add support for `chroot`.
 
 ### Other
 
