@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <signal.h>
-#include <sysexits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -57,7 +56,6 @@ void spawn_child(struct Child *ch) {
       // TODO: Handle error better than exiting child?
       _exit(EXIT_FAILURE);
     } else if (ch_pid == -1) {
-      // TODO: Backoff algorithm?
       sleep(1);
     } else {
       ch->pid = ch_pid;
@@ -100,6 +98,9 @@ int main(void) {
   struct Child *ch;
   sigset_t chld_mask;
   siginfo_t si;
+
+  // TODO: parse command line arg (-d) and return EX_USAGE on failure.
+  // TODO: use default or command line conf.d or return EX_OSFILE.
 
   parse_config();
 
