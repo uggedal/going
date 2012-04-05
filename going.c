@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <signal.h>
+#include <sysexits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -54,10 +55,10 @@ void spawn_child(struct Child *ch) {
       //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
       // TODO: Handle error better than exiting child?
-      _exit(1);
+      _exit(EXIT_FAILURE);
     } else if (ch_pid == -1) {
       // TODO: Backoff algorithm?
-      sleep(EXIT_FAILURE);
+      sleep(1);
     } else {
       ch->pid = ch_pid;
       return;
