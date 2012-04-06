@@ -1,7 +1,8 @@
 going
 =====
 
-Ensure your services are still going.
+Ensure your services are still `going`. A simple ICS licensed
+process supervisor.
 
 
 Usage
