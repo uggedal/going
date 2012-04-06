@@ -84,7 +84,7 @@ TODO
     see *Combining Signal and Data Events* in [select_tut(2)][select_tut]
     for more info of the signal safe I/O multiplexers.
 
-### 3.0.0
+### 2.1.0
 
 * Create going information utility:
   - Uptime of children.
