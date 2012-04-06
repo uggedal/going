@@ -46,6 +46,7 @@ TODO
 
 * Reading configurations from `/etc/going.d`.
 * Ability to change config directory with a `-d` argument.
+* Add version flag (-v).
 * Logging `going` events to syslog.
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
