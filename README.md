@@ -86,7 +86,7 @@ TODO
 
 ### 3.0.0
 
-* Rename going to goingd and create going information utility:
+* Create going information utility:
   - Uptime of children.
   - More statistics either from /proc or getrusage().
 
