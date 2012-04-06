@@ -118,6 +118,7 @@ int main(void) {
   while (true) {
     sigwaitinfo(&chld_mask, NULL);
     respawn();
+    // TODO: break loop for SIGINT etc.
   }
 
   // TODO: Kill and reap children if we exit abnormally or just let them
