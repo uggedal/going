@@ -1,7 +1,7 @@
 going
 =====
 
-Ensure your services are still `going`. A simple ICS licensed
+Ensure your processes are still `going`. A simple ICS licensed
 process supervisor.
 
 
@@ -98,6 +98,7 @@ TODO
 * Possibly logging stdin/sterr with custom log per service.
   - Need to switch handling of SIGCHLD as for `inotify`. If ppoll is used
     for handling inotify we should probably shift to epoll_pwait.
+* Asynchronous starting of processes.
 * Look into using `scan-build` in debug make target.
 
 
