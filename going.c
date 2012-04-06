@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <libgen.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -47,7 +48,7 @@ void spawn_child(struct Child *ch) {
   argv[0] = basename(ch->cmd);
   argv[1] = NULL;
 
-  for (;;) {
+  while (true) {
     if ((ch_pid = fork()) == 0) {
       sigprocmask(SIG_SETMASK, &orig_mask, NULL);
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
@@ -114,7 +115,7 @@ int main(void) {
     printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
   }
 
-  for (;;) {
+  while (true) {
     sigwaitinfo(&chld_mask, NULL);
     respawn();
   }
