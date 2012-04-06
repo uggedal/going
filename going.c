@@ -98,7 +98,6 @@ void cleanup(void) {
 int main(void) {
   struct Child *ch;
   sigset_t chld_mask;
-  siginfo_t si;
 
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d or return EX_OSFILE.
@@ -116,7 +115,7 @@ int main(void) {
   }
 
   for (;;) {
-    sigwaitinfo(&chld_mask, &si);
+    sigwaitinfo(&chld_mask, NULL);
     respawn();
   }
 
