@@ -54,6 +54,8 @@ TODO
 * Create make install target (look into handling prefix without ./configure).
 * Document that all services needs to be restarted when adding a new config
   with `kill -s QUIT pid`.
+* Document requirements (kernel version) with note about usage of non-portable
+  system calls.
 * Man page.
 * Github project page.
 * Look into [foreman][] format.
