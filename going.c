@@ -135,7 +135,8 @@ void cleanup(void) {
 
 int main(void) {
   struct Child *ch;
-  sigset_t chld_mask;
+  sigset_t block_mask;
+  int sig;
 
   if (atexit(cleanup) != 0) {
     // TODO: Log error and continue or exit?
@@ -146,9 +147,12 @@ int main(void) {
 
   parse_config("test/going.d");
 
-  sigemptyset(&chld_mask);
-  sigaddset(&chld_mask, SIGCHLD);
-  sigprocmask(SIG_BLOCK, &chld_mask, &orig_mask);
+  sigemptyset(&block_mask);
+  sigaddset(&block_mask, SIGCHLD);
+  sigaddset(&block_mask, SIGTERM);
+  sigaddset(&block_mask, SIGINT);
+  sigaddset(&block_mask, SIGHUP);
+  sigprocmask(SIG_BLOCK, &block_mask, &orig_mask);
 
   for (ch = head_ch; ch; ch = ch->next) {
     spawn_child(ch);
@@ -157,13 +161,17 @@ int main(void) {
   }
 
   while (true) {
-    sigwaitinfo(&chld_mask, NULL);
+    sig = sigwaitinfo(&block_mask, NULL);
+
+    if (sig != SIGCHLD) {
+      break;
+    }
+
     respawn();
-    // TODO: Break loop for SIGINT etc so that our exit handler is called.
   }
 
-  // TODO: Kill and reap children if we exit abnormally or just let them
-  //       become zombies?
+  // TODO: Kill and reap children if we have left the SIGCHLD loop
+  //       or just let them become zombies?
 
   return EXIT_SUCCESS;
 }
