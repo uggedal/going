@@ -8,4 +8,4 @@ clean:
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS="$(CFLAGS) -O0 -g"
 	@cppcheck --enable=all going.c
-	@valgrind --leak-check=full ./going
+	@valgrind --leak-check=full --show-reachable=yes ./going
