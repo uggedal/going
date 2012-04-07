@@ -137,6 +137,10 @@ int main(void) {
   struct Child *ch;
   sigset_t chld_mask;
 
+  if (atexit(cleanup) != 0) {
+    // TODO: Log error and continue or exit?
+  }
+
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d or return EX_OSFILE.
 
@@ -155,13 +159,11 @@ int main(void) {
   while (true) {
     sigwaitinfo(&chld_mask, NULL);
     respawn();
-    // TODO: break loop for SIGINT etc.
+    // TODO: Break loop for SIGINT etc so that our exit handler is called.
   }
 
   // TODO: Kill and reap children if we exit abnormally or just let them
   //       become zombies?
-
-  cleanup();
 
   return EXIT_SUCCESS;
 }
