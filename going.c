@@ -1,9 +1,12 @@
-#include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <libgen.h>
+#include <string.h>
 #include <signal.h>
+#include <stdio.h>
+#include <dirent.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -19,8 +22,42 @@ static struct Child *head_ch = NULL;
 
 static sigset_t orig_mask;
 
-void parse_config(void) {
+void parse_config(const char *path) {
+  DIR *dirp;
+  struct dirent *dp;
   struct Child *prev_ch = NULL;
+
+  dirp = opendir(path);
+  if (dirp == NULL) {
+    // TODO: Log error.
+    exit(EXIT_FAILURE);
+  }
+
+  while (true) {
+    errno = 0;
+    dp = readdir(dirp);
+
+    if (dp == NULL) {
+      break;
+    }
+
+    if (strcmp(dp->d_name,".") == 0 || strcmp(dp->d_name,"..") == 0) {
+      continue;
+    }
+
+    // TODO: Read config file (using openat()).
+
+    printf("config: %s\n", dp->d_name);
+  }
+
+  if (errno != 0) {
+    // TODO: Log error.
+    exit(EXIT_FAILURE);
+  }
+
+  if (closedir(dirp) == -1) {
+    // TODO: Log error, but probably not exit.
+  }
 
   // TODO: actual parsing
   for (int i = 0; i < 5; i++) {
@@ -103,7 +140,7 @@ int main(void) {
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d or return EX_OSFILE.
 
-  parse_config();
+  parse_config("test/going.d");
 
   sigemptyset(&chld_mask);
   sigaddset(&chld_mask, SIGCHLD);
