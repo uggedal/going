@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sysexits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -22,41 +23,26 @@ static struct Child *head_ch = NULL;
 
 static sigset_t orig_mask;
 
+static int only_files_selector(const struct dirent *d) {
+  return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
+}
+
 void parse_config(const char *path) {
-  DIR *dirp;
-  struct dirent *dp;
   struct Child *prev_ch = NULL;
+  struct dirent **dirlist;
+  int dirn;
 
-  dirp = opendir(path);
-  if (dirp == NULL) {
+  dirn = scandir(path, &dirlist, only_files_selector, alphasort);
+  if (dirn < 0) {
     // TODO: Log error.
-    exit(EXIT_FAILURE);
-  }
-
-  while (true) {
-    errno = 0;
-    dp = readdir(dirp);
-
-    if (dp == NULL) {
-      break;
+    exit(EX_OSFILE);
+  } else {
+    while (dirn--) {
+      printf("config: %s\n", dirlist[dirn]->d_name);
+      // TODO: Read config file.
+      free(dirlist[dirn]);
     }
-
-    if (strcmp(dp->d_name,".") == 0 || strcmp(dp->d_name,"..") == 0) {
-      continue;
-    }
-
-    // TODO: Read config file (using openat()).
-
-    printf("config: %s\n", dp->d_name);
-  }
-
-  if (errno != 0) {
-    // TODO: Log error.
-    exit(EXIT_FAILURE);
-  }
-
-  if (closedir(dirp) == -1) {
-    // TODO: Log error, but probably not exit.
+    free(dirlist);
   }
 
   // TODO: actual parsing
@@ -143,7 +129,7 @@ int main(void) {
   }
 
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
-  // TODO: use default or command line conf.d or return EX_OSFILE.
+  // TODO: use default or command line conf.d.
 
   parse_config("test/going.d");
 
