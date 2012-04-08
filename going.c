@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
@@ -146,6 +147,20 @@ void cleanup(void) {
   }
 }
 
+void block_signals(sigset_t *block_mask, int argc, ...) {
+  va_list ap;
+
+  va_start(ap, argc);
+
+  sigemptyset(block_mask);
+
+  for (int i = 0; i < argc; i++) {
+    sigaddset(block_mask, va_arg(ap, int));
+  }
+
+  sigprocmask(SIG_BLOCK, block_mask, &orig_mask);
+}
+
 // TODO: cleanup/split this mess of a function:
 int main(void) {
   struct Child *ch;
@@ -161,12 +176,7 @@ int main(void) {
 
   parse_config("test/going.d");
 
-  sigemptyset(&block_mask);
-  sigaddset(&block_mask, SIGCHLD);
-  sigaddset(&block_mask, SIGTERM);
-  sigaddset(&block_mask, SIGINT);
-  sigaddset(&block_mask, SIGHUP);
-  sigprocmask(SIG_BLOCK, &block_mask, &orig_mask);
+  block_signals(&block_mask, 4, SIGCHLD, SIGTERM, SIGINT, SIGHUP);
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
