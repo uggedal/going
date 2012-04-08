@@ -57,7 +57,7 @@ TODO
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
 * Man page.
-* Github project page.
+* Github project page (possibly using [shocco][]).
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
@@ -97,6 +97,7 @@ TODO
 * Look into using `scan-build` in debug make target.
 
 
+[shocco]: http://rtomayko.github.com/shocco/
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html
