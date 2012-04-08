@@ -57,19 +57,25 @@ void parse_config(const char *dirpath) {
     bool valid = false;
     // TODO: Check that we got memory on the heap.
 
-    // TODO: Check that d_name fits.
-    strncpy(ch->name, dirlist[dirn]->d_name, sizeof(ch->name) -1);
-    ch->pid = 0;
-    ch->next = NULL;
+    if (strlen(dirlist[dirn]->d_name) > sizeof(ch->name) - 1) {
+      // TODO: Log invalid name.
+    } else {
+      strcpy(ch->name, dirlist[dirn]->d_name);
+      ch->pid = 0;
+      ch->next = NULL;
 
-    while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
-      key = strsep(&line, "=");
-      value = strsep(&line, "\n");
-      if (key != NULL && value != NULL) {
-        if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
-          // TODO: Check that value fits.
-          strncpy(ch->cmd, value, sizeof(ch->cmd) -1);
-          valid = true;
+      while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
+        key = strsep(&line, "=");
+        value = strsep(&line, "\n");
+        if (key != NULL && value != NULL) {
+          if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
+            if (strlen(value) > sizeof(ch->cmd) - 1) {
+              // TODO: Log invalid cmd.
+            } else {
+              strcpy(ch->cmd, value);
+              valid = true;
+            }
+          }
         }
       }
     }
@@ -147,6 +153,7 @@ void cleanup(void) {
   }
 }
 
+// TODO: Could the variadic arguments be handled as a simple bitmask?
 void block_signals(sigset_t *block_mask, int argc, ...) {
   va_list ap;
 
