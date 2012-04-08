@@ -45,15 +45,15 @@ TODO
 
 ### 1.0.0
 
-* Reading configurations from `/etc/going.d`.
+* Fix all inline TODOs in source.
 * Ability to change config directory with a `-d` argument.
 * Add version flag (-v).
 * Logging `going` events to syslog.
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
 * Create make install target (look into handling prefix without ./configure).
-* Document that all services needs to be restarted when adding a new config
-  with `kill pid`.
+* Implement gracefull reloading of configurations by listening on SIGHUP
+  and document usage with `kill -s HUP pid`.
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
 * Man page.
@@ -63,11 +63,6 @@ TODO
 * Tag releases in git.
 
 ### 1.1.0
-
-* Implement gracefull reloading of configurations by listening on SIGHUP
-  and document usage with `kill -s HUP pid`.
-
-### 1.2.0
 
 * Add support for setting the environment.
 * Add support for `uid` and `gid`.
