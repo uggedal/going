@@ -183,7 +183,6 @@ int main(void) {
   //       - with inotify an empty directory can be valid.
 
   for (ch = head_ch; ch != NULL; ch = ch->next) {
-    printf("%s", ch->name);
     spawn_child(ch);
     // TODO: Remove debug printf():
     printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
