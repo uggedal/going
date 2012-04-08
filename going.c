@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
-#include <stdarg.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
@@ -153,18 +152,12 @@ void cleanup(void) {
   }
 }
 
-// TODO: Could the variadic arguments be handled as a simple bitmask?
-void block_signals(sigset_t *block_mask, int argc, ...) {
-  va_list ap;
-
-  va_start(ap, argc);
-
+void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
-
-  for (int i = 0; i < argc; i++) {
-    sigaddset(block_mask, va_arg(ap, int));
-  }
-
+  sigaddset(block_mask, SIGCHLD);
+  sigaddset(block_mask, SIGTERM);
+  sigaddset(block_mask, SIGINT);
+  sigaddset(block_mask, SIGHUP);
   sigprocmask(SIG_BLOCK, block_mask, &orig_mask);
 }
 
@@ -178,12 +171,12 @@ int main(void) {
     // TODO: Log error and continue or exit?
   }
 
+  block_signals(&block_mask);
+
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d.
 
   parse_config("test/going.d");
-
-  block_signals(&block_mask, 4, SIGCHLD, SIGTERM, SIGINT, SIGHUP);
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
