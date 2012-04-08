@@ -29,6 +29,7 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
+// TODO: cleanup/split this mess of a function:
 void parse_config(const char *dirpath) {
   struct Child *prev_ch = NULL;
   struct dirent **dirlist;
@@ -145,6 +146,7 @@ void cleanup(void) {
   }
 }
 
+// TODO: cleanup/split this mess of a function:
 int main(void) {
   struct Child *ch;
   sigset_t block_mask;
