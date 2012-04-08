@@ -192,6 +192,7 @@ int main(void) {
     sig = sigwaitinfo(&block_mask, NULL);
 
     if (sig != SIGCHLD) {
+      // TODO: Decide if we should re-raise terminating signals.
       break;
     }
 
