@@ -96,7 +96,7 @@ void parse_config(const char *dirpath) {
           if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
             if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
               slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-                  CMD_KEY, dirlist[dirn]->d_name, sizeof(ch->cmd) -1);
+                   CMD_KEY, dirlist[dirn]->d_name, sizeof(ch->cmd) -1);
             } else {
               valid = true;
             }
