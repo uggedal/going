@@ -145,7 +145,7 @@ void spawn_child(struct Child *ch) {
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
-      // TODO: Log the fact that we can not execute ch->cmd.
+      slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
 
     } else if (ch_pid == -1) {
@@ -234,6 +234,7 @@ int main(void) {
   }
 
   // TODO: Kill and reap children if we have left the SIGCHLD loop.
+  //       - What about children respawning too fast (in sleep mode)?
 
   return EXIT_SUCCESS;
 }
