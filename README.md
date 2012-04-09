@@ -48,7 +48,7 @@ TODO
 * Fix all inline TODOs in source.
 * Ability to change config directory with a `-d` argument.
 * Add version flag (-v).
-* Logging `going` events to syslog.
+* Logging `going` events to syslog (open and close logger in call).
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
 * Create make install target (look into handling prefix without ./configure).

@@ -6,10 +6,14 @@
 #include <signal.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <time.h>
 #include <errno.h>
 #include <sysexits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#define	RESPAWN_SPACING 5
+#define	RESPAWN_SLEEP 30
 
 static const char CMD_KEY[] = "cmd";
 
@@ -17,6 +21,7 @@ struct Child {
   char name[32];
   char cmd[128];
   pid_t pid;
+  time_t up_at;
   struct Child *next;
   // TODO: add respawn counter/timer
 };
@@ -64,6 +69,7 @@ void parse_config(const char *dirpath) {
       // TODO: Log invalid name.
     } else {
       ch->pid = 0;
+      ch->up_at = 0;
       ch->next = NULL;
 
       while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
@@ -108,6 +114,13 @@ void spawn_child(struct Child *ch) {
 
   while (true) {
     if ((ch_pid = fork()) == 0) {
+      time_t now = time(NULL);
+
+      if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < RESPAWN_SPACING) {
+        // TODO: Log that child is respawning too fast.
+        sleep(RESPAWN_SLEEP);
+      }
+
       sigprocmask(SIG_SETMASK, &orig_mask, NULL);
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
       // TODO: Close file descriptors which should not be inherited or
@@ -119,6 +132,7 @@ void spawn_child(struct Child *ch) {
     } else if (ch_pid == -1) {
       sleep(1);
     } else {
+      ch->up_at = time(NULL);
       ch->pid = ch_pid;
       return;
     }
