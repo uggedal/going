@@ -65,7 +65,7 @@ void parse_config(const char *dirpath) {
 
   dirn = scandir(dirpath, &dirlist, only_files_selector, alphasort);
   if (dirn < 0) {
-    slog(LOG_CRIT, "can't open %s: %m", dirpath);
+    slog(LOG_ALERT, "Can't open %s: %m", dirpath);
     exit(EX_OSFILE);
   }
 
@@ -73,7 +73,7 @@ void parse_config(const char *dirpath) {
     snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[dirn]->d_name);
 
     if ((fp = fopen(path, "r")) == NULL) {
-      // TODO: Log error.
+      slog(LOG_ERR, "Can't read %s: %m", path);
       break;
     }
 
