@@ -21,8 +21,8 @@ static const char IDENT[] = "going";
 static const char CMD_KEY[] = "cmd";
 
 struct Child {
-  char name[32];
-  char cmd[128];
+  char name[32+1];
+  char cmd[128+1];
   pid_t pid;
   time_t up_at;
   struct Child *next;
