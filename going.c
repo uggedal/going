@@ -82,7 +82,8 @@ void parse_config(const char *dirpath) {
     bool valid = false;
 
     if (!safe_strcpy(ch->name, dirlist[dirn]->d_name, sizeof(ch->name))) {
-      // TODO: Log invalid name.
+      slog(LOG_ERR, "Configuration file name %s is too long (max: %d)",
+          dirlist[dirn]->d_name, sizeof(ch->name) -1);
     } else {
       ch->pid = 0;
       ch->up_at = 0;
