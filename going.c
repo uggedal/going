@@ -149,8 +149,6 @@ void respawn(void) {
 
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
-        // TODO: Possibly add some data about respawns and add a backoff
-        //       algorithm.
         spawn_child(ch);
         // TODO: Remove debug printf():
         printf("respawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
