@@ -47,7 +47,7 @@ void slog(int priority, char *message, ...)
 
   // TODO: Should we block and unblock all signals?
 
-  openlog(IDENT, 0, LOG_DAEMON);
+  openlog(IDENT, LOG_PID, LOG_DAEMON);
   va_start(ap, message);
   vsyslog(priority, message, ap);
   va_end(ap);
