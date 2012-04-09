@@ -199,7 +199,7 @@ int main(void) {
   int sig;
 
   if (atexit(cleanup) != 0) {
-    // TODO: Log error and continue or exit?
+    slog(LOG_ERR, "Unable to register atexit(3) function");
   }
 
   block_signals(&block_mask);
