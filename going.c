@@ -53,14 +53,44 @@ void slog(int priority, char *message, ...)
   closelog();
 }
 
-// TODO: cleanup/split this mess of a function:
-void parse_config(const char *dirpath) {
+bool parse_config(struct Child *ch, FILE *fp, char *name) {
+  bool valid = false;
+  char buf[256], *line, *key, *value;
+
+  ch->pid = 0;
+  ch->up_at = 0;
+  ch->next = NULL;
+
+  if (!safe_strcpy(ch->name, name, sizeof(ch->name))) {
+    slog(LOG_ERR, "Configuration file name %s is too long (max: %d)",
+         name, sizeof(ch->name) -1);
+    return false;
+  }
+
+  while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
+    key = strsep(&line, "=");
+    value = strsep(&line, "\n");
+
+    if (key != NULL && value != NULL) {
+      if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
+        if (safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
+          valid = true;
+        } else {
+          slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
+               CMD_KEY, name, sizeof(ch->cmd) -1);
+        }
+      }
+    }
+  }
+  return valid;
+}
+
+void parse_confdir(const char *dirpath) {
   struct Child *prev_ch = NULL;
   struct dirent **dirlist;
   int dirn;
   char path[PATH_MAX + 1];
   FILE *fp;
-  char buf[256], *line, *key, *value;
 
   dirn = scandir(dirpath, &dirlist, only_files_selector, alphasort);
   if (dirn < 0) {
@@ -78,33 +108,8 @@ void parse_config(const char *dirpath) {
 
     struct Child *ch = malloc(sizeof(struct Child));
     // TODO: Check that we got memory on the heap.
-    bool valid = false;
 
-    if (!safe_strcpy(ch->name, dirlist[dirn]->d_name, sizeof(ch->name))) {
-      slog(LOG_ERR, "Configuration file name %s is too long (max: %d)",
-          dirlist[dirn]->d_name, sizeof(ch->name) -1);
-    } else {
-      ch->pid = 0;
-      ch->up_at = 0;
-      ch->next = NULL;
-
-      while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
-        key = strsep(&line, "=");
-        value = strsep(&line, "\n");
-        if (key != NULL && value != NULL) {
-          if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
-            if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
-              slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-                   CMD_KEY, dirlist[dirn]->d_name, sizeof(ch->cmd) -1);
-            } else {
-              valid = true;
-            }
-          }
-        }
-      }
-    }
-
-    if (valid) {
+    if (parse_config(ch, fp, dirlist[dirn]->d_name)) {
       if (prev_ch) {
         prev_ch->next = ch;
       } else {
@@ -192,7 +197,6 @@ void block_signals(sigset_t *block_mask) {
   sigprocmask(SIG_BLOCK, block_mask, &orig_mask);
 }
 
-// TODO: cleanup/split this mess of a function:
 int main(void) {
   struct Child *ch;
   sigset_t block_mask;
@@ -207,7 +211,7 @@ int main(void) {
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d.
 
-  parse_config("test/going.d");
+  parse_confdir("test/going.d");
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
