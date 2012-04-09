@@ -113,8 +113,9 @@ void spawn_child(struct Child *ch) {
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
-      // TODO: Handle error better than exiting child?
-      _exit(EXIT_FAILURE);
+      // TODO: Log the fact that we can not execute ch->cmd.
+      exit(EXIT_FAILURE);
+
     } else if (ch_pid == -1) {
       sleep(1);
     } else {
