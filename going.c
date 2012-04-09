@@ -26,7 +26,6 @@ struct Child {
   pid_t pid;
   time_t up_at;
   struct Child *next;
-  // TODO: add respawn counter/timer
 };
 
 static struct Child *head_ch = NULL;
@@ -169,8 +168,6 @@ void respawn(void) {
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
         spawn_child(ch);
-        // TODO: Remove debug printf():
-        printf("respawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
       }
     }
   }
@@ -218,8 +215,6 @@ int main(void) {
 
   for (ch = head_ch; ch != NULL; ch = ch->next) {
     spawn_child(ch);
-    // TODO: Remove debug printf():
-    printf("spawned: %s (cmd: %s) (pid: %d)\n", ch->name, ch->cmd, ch->pid);
   }
 
   while (true) {
