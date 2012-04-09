@@ -29,6 +29,10 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
+bool safe_strcpy(char *dst, const char *src, size_t size) {
+  return (unsigned) snprintf(dst, size, "%s", src) < size;
+}
+
 // TODO: cleanup/split this mess of a function:
 void parse_config(const char *dirpath) {
   struct Child *prev_ch = NULL;
@@ -53,13 +57,12 @@ void parse_config(const char *dirpath) {
     }
 
     struct Child *ch = malloc(sizeof(struct Child));
-    bool valid = false;
     // TODO: Check that we got memory on the heap.
+    bool valid = false;
 
-    if (strlen(dirlist[dirn]->d_name) > sizeof(ch->name) - 1) {
+    if (!safe_strcpy(ch->name, dirlist[dirn]->d_name, sizeof(ch->name))) {
       // TODO: Log invalid name.
     } else {
-      strcpy(ch->name, dirlist[dirn]->d_name);
       ch->pid = 0;
       ch->next = NULL;
 
@@ -68,10 +71,9 @@ void parse_config(const char *dirpath) {
         value = strsep(&line, "\n");
         if (key != NULL && value != NULL) {
           if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
-            if (strlen(value) > sizeof(ch->cmd) - 1) {
+            if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
               // TODO: Log invalid cmd.
             } else {
-              strcpy(ch->cmd, value);
               valid = true;
             }
           }
