@@ -135,7 +135,8 @@ void spawn_child(struct Child *ch) {
       time_t now = time(NULL);
 
       if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < RESPAWN_SPACING) {
-        // TODO: Log that child is respawning too fast.
+        slog(LOG_WARNING, "Child %s is exiting too fast: %ds (limit: %ds)",
+             ch->name, now - ch->up_at, RESPAWN_SPACING);
         sleep(RESPAWN_SLEEP);
       }
 
