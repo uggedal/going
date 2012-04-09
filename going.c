@@ -9,12 +9,15 @@
 #include <time.h>
 #include <errno.h>
 #include <sysexits.h>
+#include <stdarg.h>
 #include <sys/types.h>
+#include <sys/syslog.h>
 #include <sys/wait.h>
 
 #define	RESPAWN_SPACING 5
 #define	RESPAWN_SLEEP 30
 
+static const char IDENT[] = "going";
 static const char CMD_KEY[] = "cmd";
 
 struct Child {
@@ -38,6 +41,19 @@ bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
+void slog(int priority, char *message, ...)
+{
+  va_list ap;
+
+  // TODO: Should we block and unblock all signals?
+
+  openlog(IDENT, 0, LOG_DAEMON);
+  va_start(ap, message);
+  vsyslog(priority, message, ap);
+  va_end(ap);
+  closelog();
+}
+
 // TODO: cleanup/split this mess of a function:
 void parse_config(const char *dirpath) {
   struct Child *prev_ch = NULL;
@@ -49,7 +65,7 @@ void parse_config(const char *dirpath) {
 
   dirn = scandir(dirpath, &dirlist, only_files_selector, alphasort);
   if (dirn < 0) {
-    // TODO: Log error.
+    slog(LOG_CRIT, "can't open %s: %m", dirpath);
     exit(EX_OSFILE);
   }
 
