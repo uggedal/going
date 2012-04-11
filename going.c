@@ -243,7 +243,6 @@ static inline char *parse_args(int argc, char **argv) {
 int main(int argc, char **argv) {
   struct Child *ch;
   sigset_t block_mask;
-  int sig;
 
   if (atexit(cleanup) != 0) {
     slog(LOG_ERR, "Unable to register atexit(3) function");
@@ -264,19 +263,19 @@ int main(int argc, char **argv) {
     spawn_child(ch);
   }
 
-  while (true) {
-    sig = sigwaitinfo(&block_mask, NULL);
-
-    if (sig != SIGCHLD) {
-      // TODO: Decide if we should re-raise terminating signals.
+  while (true) switch(sigwaitinfo(&block_mask, NULL)) {
+    case SIGCHLD:
+      respawn();
       break;
-    }
-
-    respawn();
+    case SIGHUP:
+      printf("TODO: should reload config\n");
+      break;
+    default:
+      // TODO: Decide if we should re-raise terminating signals.
+      // TODO: Kill and reap children if we have left the SIGCHLD loop.
+      //       - What about children respawning too fast (in sleep mode)?
+      exit(EXIT_FAILURE);
   }
-
-  // TODO: Kill and reap children if we have left the SIGCHLD loop.
-  //       - What about children respawning too fast (in sleep mode)?
 
   return EXIT_SUCCESS;
 }
