@@ -47,12 +47,8 @@ TODO
 
 * Fix all inline TODOs in source.
 * Add version flag (-v).
-* Logging `going` events to syslog.
-  - Use setlogmask(LOG_UPTO(LOG_ERR)) so that we can easily get
-    debug logging in development (look into making it a cli argument).
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
-* Create make install target (look into handling prefix without ./configure).
 * Implement gracefull reloading of configurations by listening on SIGHUP
   and document usage with `kill -s HUP pid`.
 * Document requirements (kernel version) with note about usage of non-portable
