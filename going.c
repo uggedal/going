@@ -14,15 +14,17 @@
 #include <sys/syslog.h>
 #include <sys/wait.h>
 
+#define IDENT "going"
+
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 128
+
 #define CONFIG_LINE_BUFFER_SIZE 256
+#define CONFIG_CMD_KEY "cmd"
 
 #define	RESPAWN_SPACING 5
 #define	RESPAWN_SLEEP 30
 
-static const char IDENT[] = "going";
-static const char CMD_KEY[] = "cmd";
 
 struct Child {
   char name[CHILD_NAME_SIZE+1];
@@ -78,12 +80,12 @@ bool parse_config(struct Child *ch, FILE *fp, char *name) {
     value = strsep(&line, "\n");
 
     if (key != NULL && value != NULL) {
-      if (strcmp(CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
+      if (strcmp(CONFIG_CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
         if (safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
           valid = true;
         } else {
           slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CMD_KEY, name, CHILD_NAME_SIZE);
+               CONFIG_CMD_KEY, name, CHILD_NAME_SIZE);
         }
       }
     }
