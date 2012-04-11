@@ -1,4 +1,5 @@
 CFLAGS=-std=gnu99 -Wall -Os -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return
+LDFLAGS=-s
 
 all: going
 
