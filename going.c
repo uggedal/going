@@ -191,8 +191,6 @@ void respawn(void) {
   pid_t ch_pid;
 
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
-    // TODO: Handle errors from waitpid() call.
-
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
         spawn_child(ch);
