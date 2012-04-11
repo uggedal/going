@@ -1,4 +1,4 @@
-CFLAGS=-std=gnu99 -Wall -O3 -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return
+CFLAGS=-std=gnu99 -Wall -Os -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return
 
 all: going
 
