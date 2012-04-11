@@ -58,7 +58,6 @@ TODO
 ### 1.0.0
 
 * Fix all inline TODOs in source.
-* Add version flag (-v).
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
 * Implement gracefull reloading of configurations by listening on SIGHUP
