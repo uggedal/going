@@ -41,11 +41,11 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
-static bool safe_strcpy(char *dst, const char *src, size_t size) {
+static inline bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
-static bool str_not_empty(char *str) {
+static inline bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
 
@@ -214,7 +214,7 @@ static void cleanup(void) {
   }
 }
 
-static void block_signals(sigset_t *block_mask) {
+static inline void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
   sigaddset(block_mask, SIGCHLD);
   sigaddset(block_mask, SIGTERM);
@@ -223,7 +223,7 @@ static void block_signals(sigset_t *block_mask) {
   sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
-static char *parse_args(int argc, char **argv) {
+static inline char *parse_args(int argc, char **argv) {
   if (argc == 1) {
     return CONFIG_DIR;
   }
