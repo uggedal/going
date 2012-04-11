@@ -41,15 +41,15 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
-bool safe_strcpy(char *dst, const char *src, size_t size) {
+static bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
-bool str_not_empty(char *str) {
+static bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
 
-void slog(int priority, char *message, ...)
+static void slog(int priority, char *message, ...)
 {
   va_list ap;
   sigset_t all_mask, orig_mask;
@@ -66,7 +66,7 @@ void slog(int priority, char *message, ...)
   sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
 
-void *safe_malloc(size_t size)
+static void *safe_malloc(size_t size)
 {
   void	*mp;
 
@@ -78,7 +78,7 @@ void *safe_malloc(size_t size)
   return mp;
 }
 
-bool parse_config(struct Child *ch, FILE *fp, char *name) {
+static bool parse_config(struct Child *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
 
@@ -110,7 +110,7 @@ bool parse_config(struct Child *ch, FILE *fp, char *name) {
   return valid;
 }
 
-void parse_confdir(const char *dirpath) {
+static void parse_confdir(const char *dirpath) {
   struct Child *prev_ch = NULL;
   struct dirent **dirlist;
   int dirn;
@@ -151,7 +151,7 @@ void parse_confdir(const char *dirpath) {
   free(dirlist);
 }
 
-void spawn_child(struct Child *ch) {
+static void spawn_child(struct Child *ch) {
   pid_t ch_pid;
   char *argv[16];
   sigset_t empty_mask;
@@ -190,7 +190,7 @@ void spawn_child(struct Child *ch) {
   }
 }
 
-void respawn(void) {
+static void respawn(void) {
   struct Child *ch;
   int status;
   pid_t ch_pid;
@@ -204,7 +204,7 @@ void respawn(void) {
   }
 }
 
-void cleanup(void) {
+static void cleanup(void) {
   struct Child *tmp_ch;
 
   while (head_ch != NULL) {
@@ -214,7 +214,7 @@ void cleanup(void) {
   }
 }
 
-void block_signals(sigset_t *block_mask) {
+static void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
   sigaddset(block_mask, SIGCHLD);
   sigaddset(block_mask, SIGTERM);
@@ -223,7 +223,7 @@ void block_signals(sigset_t *block_mask) {
   sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
-char *parse_args(int argc, char **argv) {
+static char *parse_args(int argc, char **argv) {
   if (argc == 1) {
     return CONFIG_DIR;
   }
