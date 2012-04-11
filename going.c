@@ -14,6 +14,9 @@
 #include <sys/syslog.h>
 #include <sys/wait.h>
 
+#define CHILD_NAME_SIZE 32
+#define CHILD_CMD_SIZE 128
+
 #define	RESPAWN_SPACING 5
 #define	RESPAWN_SLEEP 30
 
@@ -21,8 +24,8 @@ static const char IDENT[] = "going";
 static const char CMD_KEY[] = "cmd";
 
 struct Child {
-  char name[32+1];
-  char cmd[128+1];
+  char name[CHILD_NAME_SIZE+1];
+  char cmd[CHILD_CMD_SIZE+1];
   pid_t pid;
   time_t up_at;
   struct Child *next;
@@ -65,7 +68,7 @@ bool parse_config(struct Child *ch, FILE *fp, char *name) {
 
   if (!safe_strcpy(ch->name, name, sizeof(ch->name))) {
     slog(LOG_ERR, "Configuration file name %s is too long (max: %d)",
-         name, sizeof(ch->name) -1);
+         name, CHILD_NAME_SIZE);
     return false;
   }
 
@@ -79,7 +82,7 @@ bool parse_config(struct Child *ch, FILE *fp, char *name) {
           valid = true;
         } else {
           slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CMD_KEY, name, sizeof(ch->cmd) -1);
+               CMD_KEY, name, CHILD_NAME_SIZE);
         }
       }
     }
