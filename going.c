@@ -61,6 +61,18 @@ void slog(int priority, char *message, ...)
   sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
 
+void *safe_malloc(size_t size)
+{
+  void	*mp;
+
+  while ((mp = malloc(size)) == NULL) {
+    slog(LOG_EMERG, "Could not allocate memory on the heap");
+    sleep(1);
+  }
+  memset(mp, 0, size);
+  return mp;
+}
+
 bool parse_config(struct Child *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
@@ -114,8 +126,7 @@ void parse_confdir(const char *dirpath) {
       break;
     }
 
-    struct Child *ch = malloc(sizeof(struct Child));
-    // TODO: Check that we got memory on the heap.
+    struct Child *ch = safe_malloc(sizeof(struct Child));
 
     if (parse_config(ch, fp, dirlist[dirn]->d_name)) {
       if (prev_ch) {
