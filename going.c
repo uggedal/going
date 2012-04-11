@@ -16,6 +16,7 @@
 
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 128
+#define CONFIG_LINE_BUFFER_SIZE 256
 
 #define	RESPAWN_SPACING 5
 #define	RESPAWN_SLEEP 30
@@ -60,7 +61,7 @@ void slog(int priority, char *message, ...)
 
 bool parse_config(struct Child *ch, FILE *fp, char *name) {
   bool valid = false;
-  char buf[256], *line, *key, *value;
+  char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
 
   ch->pid = 0;
   ch->up_at = 0;
