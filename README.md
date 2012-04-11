@@ -46,7 +46,6 @@ TODO
 ### 1.0.0
 
 * Fix all inline TODOs in source.
-* Ability to change config directory with a `-d` argument.
 * Add version flag (-v).
 * Logging `going` events to syslog.
   - Use setlogmask(LOG_UPTO(LOG_ERR)) so that we can easily get

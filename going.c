@@ -19,6 +19,7 @@
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 128
 
+#define CONFIG_DIR "/etc/going.d"
 #define CONFIG_LINE_BUFFER_SIZE 256
 #define CONFIG_CMD_KEY "cmd"
 
@@ -42,6 +43,10 @@ static int only_files_selector(const struct dirent *d) {
 
 bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
+}
+
+bool str_not_empty(char *str) {
+  return strnlen(str, 1) == 1;
 }
 
 void slog(int priority, char *message, ...)
@@ -92,7 +97,7 @@ bool parse_config(struct Child *ch, FILE *fp, char *name) {
     value = strsep(&line, "\n");
 
     if (key != NULL && value != NULL) {
-      if (strcmp(CONFIG_CMD_KEY, key) == 0 && strnlen(value, 1) == 1) {
+      if (strcmp(CONFIG_CMD_KEY, key) == 0 && str_not_empty(value)) {
         if (safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
           valid = true;
         } else {
@@ -218,7 +223,20 @@ void block_signals(sigset_t *block_mask) {
   sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
-int main(void) {
+char *parse_args(int argc, char **argv) {
+  if (argc == 1) {
+    return CONFIG_DIR;
+  }
+
+  if (argc == 3 && strcmp("-d", argv[1]) == 0 && str_not_empty(argv[2])) {
+    return argv[2];
+  }
+
+  fprintf(stderr, "Usage: %s [-d conf.d]\n", argv[0]);
+  exit(EX_USAGE);
+}
+
+int main(int argc, char **argv) {
   struct Child *ch;
   sigset_t block_mask;
   int sig;
@@ -232,7 +250,7 @@ int main(void) {
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d.
 
-  parse_confdir("test/going.d");
+  parse_confdir(parse_args(argc, argv));
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
