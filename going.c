@@ -30,8 +30,6 @@ struct Child {
 
 static struct Child *head_ch = NULL;
 
-static sigset_t orig_mask;
-
 static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
@@ -43,14 +41,18 @@ bool safe_strcpy(char *dst, const char *src, size_t size) {
 void slog(int priority, char *message, ...)
 {
   va_list ap;
+  sigset_t all_mask, orig_mask;
 
-  // TODO: Should we block and unblock all signals?
+  sigfillset(&all_mask);
+  sigprocmask(SIG_BLOCK, &all_mask, &orig_mask);
 
   openlog(IDENT, LOG_PID, LOG_DAEMON);
   va_start(ap, message);
   vsyslog(priority, message, ap);
   va_end(ap);
   closelog();
+
+  sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
 
 bool parse_config(struct Child *ch, FILE *fp, char *name) {
@@ -130,12 +132,20 @@ void parse_confdir(const char *dirpath) {
 void spawn_child(struct Child *ch) {
   pid_t ch_pid;
   char *argv[16];
+  sigset_t empty_mask;
+
+  sigemptyset(&empty_mask);
 
   argv[0] = basename(ch->cmd);
   argv[1] = NULL;
 
   while (true) {
     if ((ch_pid = fork()) == 0) {
+      sigprocmask(SIG_SETMASK, &empty_mask, NULL);
+      // TODO: Should file descriptors 0, 1, 2 be closed or duped?
+      // TODO: Close file descriptors which should not be inherited or
+      //       use O_CLOEXEC when opening such files.
+
       time_t now = time(NULL);
 
       if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < RESPAWN_SPACING) {
@@ -144,10 +154,6 @@ void spawn_child(struct Child *ch) {
         sleep(RESPAWN_SLEEP);
       }
 
-      sigprocmask(SIG_SETMASK, &orig_mask, NULL);
-      // TODO: Should file descriptors 0, 1, 2 be closed or duped?
-      // TODO: Close file descriptors which should not be inherited or
-      //       use O_CLOEXEC when opening such files.
       execvp(ch->cmd, argv);
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
@@ -194,7 +200,7 @@ void block_signals(sigset_t *block_mask) {
   sigaddset(block_mask, SIGTERM);
   sigaddset(block_mask, SIGINT);
   sigaddset(block_mask, SIGHUP);
-  sigprocmask(SIG_BLOCK, block_mask, &orig_mask);
+  sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
 int main(void) {
