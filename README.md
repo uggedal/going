@@ -5,6 +5,18 @@ Ensure your processes are still `going`. A simple ICS licensed
 process supervisor.
 
 
+Installation
+------------
+
+To install `going` to `/usr/sbin` simply invoke:
+
+    make install
+
+The default `/usr` prefix can be changed with:
+
+    PREFIX=/usr/local make install
+
+
 Usage
 -----
 
