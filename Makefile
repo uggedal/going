@@ -1,5 +1,10 @@
+VERSION=0.1.0
+
 PREFIX=/usr
-CFLAGS=-std=gnu99 -Wall -Os -pedantic -Werror -Wextra -Wshadow -Wstrict-prototypes -Wunreachable-code -Waggregate-return
+
+CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
+CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
+CFLAGS+=-DVERSION=\"${VERSION}\"
 LDFLAGS=-s
 
 all: going

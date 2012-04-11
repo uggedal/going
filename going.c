@@ -16,6 +16,10 @@
 
 #define IDENT "going"
 
+#define USAGE \
+  "going " VERSION " (c) 2012 Eivind Uggedal\n" \
+  "usage: going [-d conf.d]\n"
+
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 128
 
@@ -232,7 +236,7 @@ static inline char *parse_args(int argc, char **argv) {
     return argv[2];
   }
 
-  fprintf(stderr, "Usage: %s [-d conf.d]\n", argv[0]);
+  fprintf(stderr, USAGE);
   exit(EX_USAGE);
 }
 
