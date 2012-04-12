@@ -27,8 +27,10 @@
 #define CONFIG_LINE_BUFFER_SIZE 256
 #define CONFIG_CMD_KEY "cmd"
 
-#define	RESPAWN_SPACING 5
-#define	RESPAWN_SLEEP 30
+#define	QUARANTINE_LIMIT 5
+static struct timespec QUARANTINE_TIME = {30, 0};
+
+#define EMERG_SLEEP 1
 
 
 struct Child {
@@ -36,6 +38,7 @@ struct Child {
   char cmd[CHILD_CMD_SIZE+1];
   pid_t pid;
   time_t up_at;
+  bool quarantined;
   struct Child *next;
 };
 
@@ -75,8 +78,8 @@ static void *safe_malloc(size_t size)
   void	*mp;
 
   while ((mp = malloc(size)) == NULL) {
-    slog(LOG_EMERG, "Could not allocate memory on the heap");
-    sleep(1);
+    slog(LOG_EMERG, "Could not malloc, sleeping %ds", EMERG_SLEEP);
+    sleep(EMERG_SLEEP);
   }
   memset(mp, 0, size);
   return mp;
@@ -88,6 +91,7 @@ static bool parse_config(struct Child *ch, FILE *fp, char *name) {
 
   ch->pid = 0;
   ch->up_at = 0;
+  ch->quarantined = true;
   ch->next = NULL;
 
   if (!safe_strcpy(ch->name, name, sizeof(ch->name))) {
@@ -165,27 +169,23 @@ static void spawn_child(struct Child *ch) {
   argv[0] = basename(ch->cmd);
   argv[1] = NULL;
 
+  ch->quarantined = false;
+
   while (true) {
     if ((ch_pid = fork()) == 0) {
       sigprocmask(SIG_SETMASK, &empty_mask, NULL);
+
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
-
-      time_t now = time(NULL);
-
-      if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < RESPAWN_SPACING) {
-        slog(LOG_WARNING, "Child %s is exiting too fast: %ds (limit: %ds)",
-             ch->name, now - ch->up_at, RESPAWN_SPACING);
-        sleep(RESPAWN_SLEEP);
-      }
 
       execvp(ch->cmd, argv);
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
 
     } else if (ch_pid == -1) {
-      sleep(1);
+      slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
+      sleep(EMERG_SLEEP);
     } else {
       ch->up_at = time(NULL);
       ch->pid = ch_pid;
@@ -194,16 +194,45 @@ static void spawn_child(struct Child *ch) {
   }
 }
 
-static void respawn(void) {
+static bool respawn_terminated_children(void) {
   struct Child *ch;
   int status;
   pid_t ch_pid;
+  bool success = true;
+  time_t now = time(NULL);
 
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
+        if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_LIMIT) {
+          slog(LOG_WARNING, "Child %s is exiting too fast: %ds (limit: %ds)",
+               ch->name, now - ch->up_at, QUARANTINE_LIMIT);
+          ch->quarantined = true;
+          success = false;
+          continue;
+        }
+        slog(LOG_WARNING, "Child %s terminated after: %ds",
+             ch->name, now - ch->up_at);
         spawn_child(ch);
       }
+    }
+  }
+  return success;
+}
+
+static bool safe_to_respaw_quarantined(struct Child *ch) {
+  time_t now = time(NULL);
+
+  return !(ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_TIME.tv_sec);
+}
+
+
+static void spawn_quarantined_children(void) {
+  struct Child *ch;
+
+  for (ch = head_ch; ch != NULL; ch = ch->next) {
+    if (ch->quarantined && safe_to_respaw_quarantined(ch)) {
+      spawn_child(ch);
     }
   }
 }
@@ -240,8 +269,34 @@ static inline char *parse_args(int argc, char **argv) {
   exit(EX_USAGE);
 }
 
+static void wait_forever(sigset_t *block_mask) {
+  struct timespec *timeout = NULL;
+
+  while (true) switch(sigtimedwait(block_mask, NULL, timeout)) {
+    case -1:
+      if (errno == EAGAIN) {
+        spawn_quarantined_children();
+        timeout = NULL;
+      }
+      break;
+    case SIGCHLD:
+      if (!respawn_terminated_children()) {
+        timeout = &QUARANTINE_TIME;
+      }
+      spawn_quarantined_children();
+      break;
+    case SIGHUP:
+      printf("TODO: should reload config\n");
+      break;
+    default:
+      // TODO: Decide if we should re-raise terminating signals.
+      // TODO: Kill and reap children if we have left the SIGCHLD loop.
+      //       - What about children respawning too fast (in sleep mode)?
+      exit(EXIT_FAILURE);
+  }
+}
+
 int main(int argc, char **argv) {
-  struct Child *ch;
   sigset_t block_mask;
 
   if (atexit(cleanup) != 0) {
@@ -259,23 +314,9 @@ int main(int argc, char **argv) {
   //       - should log this.
   //       - with inotify an empty directory can be valid.
 
-  for (ch = head_ch; ch != NULL; ch = ch->next) {
-    spawn_child(ch);
-  }
+  spawn_quarantined_children();
 
-  while (true) switch(sigwaitinfo(&block_mask, NULL)) {
-    case SIGCHLD:
-      respawn();
-      break;
-    case SIGHUP:
-      printf("TODO: should reload config\n");
-      break;
-    default:
-      // TODO: Decide if we should re-raise terminating signals.
-      // TODO: Kill and reap children if we have left the SIGCHLD loop.
-      //       - What about children respawning too fast (in sleep mode)?
-      exit(EXIT_FAILURE);
-  }
+  wait_forever(&block_mask);
 
   return EXIT_SUCCESS;
 }
