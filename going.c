@@ -250,8 +250,9 @@ static bool respawn_terminated_children(void) {
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
         if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_LIMIT) {
-          slog(LOG_WARNING, "Child %s is exiting too fast: %ds (limit: %ds)",
-               ch->name, now - ch->up_at, QUARANTINE_LIMIT);
+          slog(LOG_WARNING, "Child %s terminated after: %ds. Due to its " \
+              "short life (limit: %ds) it will be quarantined for %ds",
+               ch->name, now - ch->up_at, QUARANTINE_LIMIT, QUARANTINE_TIME.tv_sec);
           ch->quarantined = true;
           success = false;
           continue;
