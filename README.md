@@ -34,6 +34,15 @@ Make `init(8)` reload its configuration:
 
     init q
 
+You can gracefully reload configurations after you've added or
+removed files in `/etc/going.d` with:
+
+    kill -HUP <pid>
+
+Reloading configurations for already running processes is currently not
+supported without sending `going` a `TERM` signal which terminates all
+its supervised processes.
+
 
 Goal
 ----

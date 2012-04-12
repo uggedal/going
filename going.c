@@ -85,6 +85,17 @@ static void *safe_malloc(size_t size)
   return mp;
 }
 
+static bool has_child(char *name) {
+  struct Child *ch;
+
+  for (ch = head_ch; ch != NULL; ch = ch->next) {
+    if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 static bool parse_config(struct Child *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
@@ -132,6 +143,13 @@ static void parse_confdir(const char *dirpath) {
   }
 
   while (dirn--) {
+    // TODO: Remove children no longer present (use same kill/wait as
+    //       future exit handler)
+
+    if (has_child(dirlist[dirn]->d_name)) {
+      continue;
+    }
+
     snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[dirn]->d_name);
 
     if ((fp = fopen(path, "r")) == NULL) {
@@ -269,7 +287,7 @@ static inline char *parse_args(int argc, char **argv) {
   exit(EX_USAGE);
 }
 
-static void wait_forever(sigset_t *block_mask) {
+static void wait_forever(sigset_t *block_mask, const char *confdir) {
   struct timespec *timeout = NULL;
 
   while (true) switch(sigtimedwait(block_mask, NULL, timeout)) {
@@ -286,7 +304,8 @@ static void wait_forever(sigset_t *block_mask) {
       spawn_quarantined_children();
       break;
     case SIGHUP:
-      printf("TODO: should reload config\n");
+      parse_confdir(confdir);
+      spawn_quarantined_children();
       break;
     default:
       // TODO: Decide if we should re-raise terminating signals.
@@ -299,6 +318,8 @@ static void wait_forever(sigset_t *block_mask) {
 int main(int argc, char **argv) {
   sigset_t block_mask;
 
+  const char *confdir = parse_args(argc, argv);
+
   if (atexit(cleanup) != 0) {
     slog(LOG_ERR, "Unable to register atexit(3) function");
   }
@@ -308,7 +329,8 @@ int main(int argc, char **argv) {
   // TODO: parse command line arg (-d) and return EX_USAGE on failure.
   // TODO: use default or command line conf.d.
 
-  parse_confdir(parse_args(argc, argv));
+
+  parse_confdir(confdir);
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
@@ -316,7 +338,7 @@ int main(int argc, char **argv) {
 
   spawn_quarantined_children();
 
-  wait_forever(&block_mask);
+  wait_forever(&block_mask, confdir);
 
   return EXIT_SUCCESS;
 }
