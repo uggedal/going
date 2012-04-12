@@ -217,8 +217,8 @@ static void spawn_child(struct Child *ch) {
 
   ch->quarantined = false;
 
-  while (true) {
-    if ((ch_pid = fork()) == 0) {
+  while (true) switch (ch_pid = fork()) {
+    case 0:
       sigprocmask(SIG_SETMASK, &empty_mask, NULL);
 
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
@@ -228,15 +228,14 @@ static void spawn_child(struct Child *ch) {
       execvp(ch->cmd, argv);
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
-
-    } else if (ch_pid == -1) {
+    case -1:
       slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
       sleep(EMERG_SLEEP);
-    } else {
+      break;
+    default:
       ch->up_at = time(NULL);
       ch->pid = ch_pid;
       return;
-    }
   }
 }
 
