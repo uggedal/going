@@ -69,8 +69,6 @@ TODO
 * Fix all inline TODOs in source.
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
-* Implement gracefull reloading of configurations by listening on SIGHUP
-  and document usage with `kill -s HUP pid`.
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
 * Man page.

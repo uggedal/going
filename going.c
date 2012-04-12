@@ -145,6 +145,9 @@ static void parse_confdir(const char *dirpath) {
   while (dirn--) {
     // TODO: Remove children no longer present (use same kill/wait as
     //       future exit handler)
+    // TODO: What about updating existing configurations? Either:
+    //       - Update child struct, kill, wait and respawn or
+    //       - Update struct for quarantined childs only
 
     if (has_child(dirlist[dirn]->d_name)) {
       continue;
