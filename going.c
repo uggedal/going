@@ -149,31 +149,29 @@ static void parse_confdir(const char *dirpath) {
     //       - Update child struct, kill, wait and respawn or
     //       - Update struct for quarantined childs only
 
-    if (has_child(dirlist[dirn]->d_name)) {
-      continue;
-    }
+    if (!has_child(dirlist[dirn]->d_name)) {
+      snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[dirn]->d_name);
 
-    snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[dirn]->d_name);
-
-    if ((fp = fopen(path, "r")) == NULL) {
-      slog(LOG_ERR, "Can't read %s: %m", path);
-      break;
-    }
-
-    struct Child *ch = safe_malloc(sizeof(struct Child));
-
-    if (parse_config(ch, fp, dirlist[dirn]->d_name)) {
-      if (prev_ch) {
-        prev_ch->next = ch;
-      } else {
-        head_ch = ch;
+      if ((fp = fopen(path, "r")) == NULL) {
+        slog(LOG_ERR, "Can't read %s: %m", path);
+        break;
       }
-      prev_ch = ch;
-    } else {
-      free(ch);
-    }
 
-    fclose(fp);
+      struct Child *ch = safe_malloc(sizeof(struct Child));
+
+      if (parse_config(ch, fp, dirlist[dirn]->d_name)) {
+        if (prev_ch) {
+          prev_ch->next = ch;
+        } else {
+          head_ch = ch;
+        }
+        prev_ch = ch;
+      } else {
+        free(ch);
+      }
+
+      fclose(fp);
+    }
     free(dirlist[dirn]);
   }
 
