@@ -355,10 +355,6 @@ int main(int argc, char **argv) {
 
   parse_confdir(confdir);
 
-  // TODO: What to do if we have no valid children?
-  //       - should log this.
-  //       - with SIGHUP/inotify an empty directory can be valid.
-
   spawn_quarantined_children();
 
   wait_forever(&block_mask, confdir);
