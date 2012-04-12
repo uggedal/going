@@ -86,10 +86,17 @@ static void *safe_malloc(size_t size)
 }
 
 static bool has_child(char *name) {
-  struct Child *ch;
-
-  for (ch = head_ch; ch != NULL; ch = ch->next) {
+  for (struct Child *ch = head_ch; ch != NULL; ch = ch->next) {
     if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static bool has_config(struct Child *ch, struct dirent **dirlist, int dirn) {
+  for (int i = dirn - 1; i >= 0; i--) {
+    if (strncmp(ch->name, dirlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
       return true;
     }
   }
@@ -129,6 +136,7 @@ static bool parse_config(struct Child *ch, FILE *fp, char *name) {
   return valid;
 }
 
+// TODO/FIXME: This function is too long
 static void parse_confdir(const char *dirpath) {
   struct Child *prev_ch = NULL;
   struct dirent **dirlist;
@@ -142,36 +150,55 @@ static void parse_confdir(const char *dirpath) {
     exit(EX_OSFILE);
   }
 
-  while (dirn--) {
-    // TODO: Remove children no longer present (use same kill/wait as
-    //       future exit handler)
+  for (int i = dirn - 1; i >= 0; i--) {
     // TODO: What about updating existing configurations? Either:
     //       - Update child struct, kill, wait and respawn or
     //       - Update struct for quarantined childs only
 
-    if (!has_child(dirlist[dirn]->d_name)) {
-      snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[dirn]->d_name);
-
-      if ((fp = fopen(path, "r")) == NULL) {
-        slog(LOG_ERR, "Can't read %s: %m", path);
-        break;
-      }
-
-      struct Child *ch = safe_malloc(sizeof(struct Child));
-
-      if (parse_config(ch, fp, dirlist[dirn]->d_name)) {
-        if (prev_ch) {
-          prev_ch->next = ch;
-        } else {
-          head_ch = ch;
-        }
-        prev_ch = ch;
-      } else {
-        free(ch);
-      }
-
-      fclose(fp);
+    if (has_child(dirlist[i]->d_name)) {
+      continue;
     }
+
+    snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[i]->d_name);
+
+    if ((fp = fopen(path, "r")) == NULL) {
+      slog(LOG_ERR, "Can't read %s: %m", path);
+      break;
+    }
+
+    struct Child *ch = safe_malloc(sizeof(struct Child));
+
+    if (parse_config(ch, fp, dirlist[i]->d_name)) {
+      if (prev_ch) {
+        prev_ch->next = ch;
+      } else {
+        head_ch = ch;
+      }
+      prev_ch = ch;
+    } else {
+      free(ch);
+    }
+
+    fclose(fp);
+  }
+
+  prev_ch = NULL;
+
+  for (struct Child *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
+    if (!has_config(ch, dirlist, dirn)) {
+      if (prev_ch) {
+        prev_ch->next = ch->next;
+      } else {
+        head_ch = ch->next;
+      }
+
+      // TODO: Kill child using same kill/wait as future exit handler
+
+      free(ch);
+    }
+  }
+
+  while (dirn--) {
     free(dirlist[dirn]);
   }
 
