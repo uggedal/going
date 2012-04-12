@@ -353,15 +353,11 @@ int main(int argc, char **argv) {
 
   block_signals(&block_mask);
 
-  // TODO: parse command line arg (-d) and return EX_USAGE on failure.
-  // TODO: use default or command line conf.d.
-
-
   parse_confdir(confdir);
 
   // TODO: What to do if we have no valid children?
   //       - should log this.
-  //       - with inotify an empty directory can be valid.
+  //       - with SIGHUP/inotify an empty directory can be valid.
 
   spawn_quarantined_children();
 
