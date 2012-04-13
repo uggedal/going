@@ -53,12 +53,27 @@ Goal
 * Under 500 actual LOC determined by `cloc`.
 
 
-Inspiration
------------
+Alternatives
+------------
 
-* [suckless](http://hg.suckless.org/).
-* [redis](https://github.com/antirez/redis).
-* [whistlepig](https://github.com/wmorgan/whistlepig).
+### Process runners
+
+* System V init's [`/etc/inittab`](http://man.cx/inittab(4))
+* BSD init's [`/etc/ttys`](http://www.freebsd.org/cgi/man.cgi?query=ttys)
+* [daemontools](http://cr.yp.to/daemontools.html)
+* [runit](http://smarden.org/runit/)
+* [s6](http://www.skarnet.org/software/s6/index.html)
+* [perp](http://b0llix.net/perp/)
+* [supervisord](http://supervisord.org/)
+* [Upstart](http://upstart.ubuntu.com/)
+* [systemd](http://www.freedesktop.org/wiki/Software/systemd/)
+
+### Poll based monitors
+
+* [mon](https://github.com/visionmedia/mon)
+* [restartd](http://packages.debian.org/unstable/restartd)
+* [monit](http://mmonit.com/monit/)
+* [god](http://godrb.com/)
 
 
 TODO
