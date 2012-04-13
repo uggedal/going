@@ -98,6 +98,10 @@ TODO
 * Add support for `uid` and `gid`.
 * Possibly add support for `chdir`.
 * Possibly add support for `chroot`.
+* Possibly create backoff algorithm for quarantined children in stead of
+  quarantining them a constant time.
+* Possibly use higher resolution timers for childrens uptime with
+  `clock_gettime(CLOCK_MONOTONIC)`.
 
 ### 2.0.0
 
