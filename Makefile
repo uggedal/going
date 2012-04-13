@@ -7,6 +7,8 @@ CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
 CFLAGS+=-DVERSION=\"${VERSION}\"
 LDFLAGS=-s
 
+.PHONY: clean debug
+
 all: going
 
 clean:
@@ -16,6 +18,6 @@ install: all
 	@install going $(PREFIX)/sbin
 
 debug:
-	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g'
+	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
 	@cppcheck --enable=all going.c
 	@valgrind --leak-check=full --show-reachable=yes ./going -d test/going.d
