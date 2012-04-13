@@ -58,7 +58,7 @@ Alternatives
 
 ### Process runners
 
-* System V init's [`/etc/inittab`](http://man.cx/inittab(4))
+* System V init's [`/etc/inittab`](http://man.cx/inittab(4)
 * BSD init's [`/etc/ttys`](http://www.freebsd.org/cgi/man.cgi?query=ttys)
 * [daemontools](http://cr.yp.to/daemontools.html)
 * [runit](http://smarden.org/runit/)
