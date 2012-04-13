@@ -103,6 +103,10 @@ static bool has_config(struct Child *ch, struct dirent **dirlist, int dirn) {
   return false;
 }
 
+static void kill_child(struct Child *ch) {
+  kill(ch->pid, SIGTERM);
+}
+
 static bool parse_config(struct Child *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
@@ -192,8 +196,7 @@ static void parse_confdir(const char *dirpath) {
         head_ch = ch->next;
       }
 
-      // TODO: Kill child using same kill/wait as future exit handler
-
+      kill_child(ch);
       free(ch);
     }
   }
