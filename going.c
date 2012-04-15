@@ -211,29 +211,27 @@ static void parse_confdir(const char *dirpath) {
 
 // TODO/FIXME: This function is too long
 static void spawn_child(child_t *ch) {
-  char *argv[CHILD_ARGV_LEN], cmd_buf[CHILD_CMD_SIZE+1], *cmd_part;
+  char cmd_buf[CHILD_CMD_SIZE+1];
+  char *argv[CHILD_ARGV_LEN];
+  char *cmd_word;
   pid_t ch_pid;
   sigset_t empty_mask;
 
   sigemptyset(&empty_mask);
 
-  safe_strcpy(cmd_buf, ch->cmd, sizeof(cmd_buf));
-  char *cmd_p = cmd_buf;
+  char *cmd_p = strcpy(cmd_buf, ch->cmd);
 
   int i = 1;
-  while ((cmd_part = strsep(&cmd_p, " ")) != NULL) {
-    if (strnlen(cmd_part, 1) == 0) {
-      continue;
+  while ((cmd_word = strsep(&cmd_p, " ")) != NULL) {
+    if (*cmd_word != '\0') {
+      if (i == 1) {
+        argv[0] = cmd_word;
+        argv[1] = basename(cmd_word);
+      } else {
+        argv[i] = cmd_word;
+      }
+      i++;
     }
-    if (i == 1) {
-      argv[0] = cmd_part;
-      argv[1] = basename(cmd_part);
-    } else if (i == CHILD_ARGV_LEN-1) {
-      break;
-    } else {
-      argv[i] = cmd_part;
-    }
-    i++;
   }
   argv[i] = NULL;
 
