@@ -1,4 +1,10 @@
-#define _GNU_SOURCE
+// TODO: Intro here
+
+// Dependencies
+// ------------
+
+// TODO: doc includes, intro, and what we use from each?
+#define _GNU_SOURCE // TODO: Why?
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -14,26 +20,48 @@
 #include <sys/syslog.h>
 #include <sys/wait.h>
 
+
+// Constants and globals
+// ---------------------
+
+// `syslog(3)` needs an identity.
 #define IDENT "going"
 
+// Short usage instructions if you fail at typing. The `VERSION` macro is
+// included by giving the `-DVERSION=N.N.N` flag to the compiler.
 #define USAGE \
   "going " VERSION " (c) 2012 Eivind Uggedal\n" \
   "usage: going [-d conf.d]\n"
 
+// The sizes of our childrens' members. By using constant sizes we only
+// have to `malloc(3)` our entire child structure once per child.
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 256
 #define CHILD_ARGV_LEN CHILD_CMD_SIZE/2
 
+// Configuration file specifics like the default place to look for
+// configurations, the size of the buffer we use to read configuration
+// lines, and the keys of our configuration format.
 #define CONFIG_DIR "/etc/going.d"
 #define CONFIG_LINE_BUFFER_SIZE CHILD_CMD_SIZE+32
 #define CONFIG_CMD_KEY "cmd"
 
+// Bad children which terminates before the limit we set here should be
+// quarantined accordingly.
 #define	QUARANTINE_LIMIT 5
 static struct timespec QUARANTINE_TIME = {30, 0};
 
+// If our system fails at giving us resources for `malloc(3)` or `fork(3)`
+// we'll have to wait a little.
 #define EMERG_SLEEP 1
 
 
+// The `child_t` type holds information for a child under supervision. We
+// identify it based on the name of its configuration file, parse its
+// command line including arguments, track its process id, the last time
+// it was started, and if it has been quarantined for terminating too fast.
+// By having a pointer to the next child we get a nice lightweight linked
+// list of children.
 typedef struct going_child {
   char name[CHILD_NAME_SIZE+1];
   char cmd[CHILD_CMD_SIZE+1];
@@ -43,16 +71,22 @@ typedef struct going_child {
   struct going_child *next;
 } child_t;
 
+// When iterating our linked list of children we need to have a pointer
+// to the head of the list.
 static child_t *head_ch = NULL;
 
-static int only_files_selector(const struct dirent *d) {
-  return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
-}
 
+// Utility functions
+// -----------------
+
+// A safe alternative to `strcpy(3)` (overflow of desination string) or
+// `strncpy(3)` (does not ensue a terminating null in destination string).
+// If we had `strlcpy(3)` in GLIBC this function would be moot...
 static inline bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
+// Simple function to determine whether a string has any content.
 static inline bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
@@ -139,6 +173,12 @@ static bool parse_config(child_t *ch, FILE *fp, char *name) {
     }
   }
   return valid;
+}
+
+// A filter function used with `scandir(3)` which returns true for
+// all files in a directory excluding `.` and `..`.
+static int only_files_selector(const struct dirent *d) {
+  return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
 // TODO/FIXME: This function is too long
