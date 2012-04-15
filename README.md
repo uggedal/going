@@ -67,10 +67,10 @@ Alternatives
 * [supervisord](http://supervisord.org/)
 * [Upstart](http://upstart.ubuntu.com/)
 * [systemd](http://www.freedesktop.org/wiki/Software/systemd/)
+* [mon](https://github.com/visionmedia/mon)
 
 ### Poll based monitors
 
-* [mon](https://github.com/visionmedia/mon)
 * [restartd](http://packages.debian.org/unstable/restartd)
 * [monit](http://mmonit.com/monit/)
 * [god](http://godrb.com/)
