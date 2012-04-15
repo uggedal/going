@@ -82,6 +82,8 @@ static child_t *head_ch = NULL;
 // A safe alternative to `strcpy(3)` (overflow of desination string) or
 // `strncpy(3)` (does not ensue a terminating null in destination string).
 // If we had `strlcpy(3)` in GLIBC this function would be moot...
+// Returns true if the source string fit inside the destination or false
+// if it was truncated according to the size argument.
 static inline bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
