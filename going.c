@@ -21,11 +21,11 @@
   "usage: going [-d conf.d]\n"
 
 #define CHILD_NAME_SIZE 32
-#define CHILD_CMD_SIZE 128
+#define CHILD_CMD_SIZE 256
 #define CHILD_ARGV_LEN CHILD_CMD_SIZE/2
 
 #define CONFIG_DIR "/etc/going.d"
-#define CONFIG_LINE_BUFFER_SIZE 256
+#define CONFIG_LINE_BUFFER_SIZE CHILD_CMD_SIZE+32
 #define CONFIG_CMD_KEY "cmd"
 
 #define	QUARANTINE_LIMIT 5
@@ -133,7 +133,7 @@ static bool parse_config(child_t *ch, FILE *fp, char *name) {
           valid = true;
         } else {
           slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CONFIG_CMD_KEY, name, CHILD_NAME_SIZE);
+               CONFIG_CMD_KEY, name, CHILD_CMD_SIZE);
         }
       }
     }
