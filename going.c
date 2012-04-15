@@ -33,16 +33,16 @@ static struct timespec QUARANTINE_TIME = {30, 0};
 #define EMERG_SLEEP 1
 
 
-struct Child {
+typedef struct going_child {
   char name[CHILD_NAME_SIZE+1];
   char cmd[CHILD_CMD_SIZE+1];
   pid_t pid;
   time_t up_at;
   bool quarantined;
-  struct Child *next;
-};
+  struct going_child *next;
+} child_t;
 
-static struct Child *head_ch = NULL;
+static child_t *head_ch = NULL;
 
 static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
@@ -86,7 +86,7 @@ static void *safe_malloc(size_t size)
 }
 
 static bool has_child(char *name) {
-  for (struct Child *ch = head_ch; ch != NULL; ch = ch->next) {
+  for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
     if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
       return true;
     }
@@ -94,7 +94,7 @@ static bool has_child(char *name) {
   return false;
 }
 
-static bool has_config(struct Child *ch, struct dirent **dirlist, int dirn) {
+static bool has_config(child_t *ch, struct dirent **dirlist, int dirn) {
   for (int i = dirn - 1; i >= 0; i--) {
     if (strncmp(ch->name, dirlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
       return true;
@@ -103,11 +103,11 @@ static bool has_config(struct Child *ch, struct dirent **dirlist, int dirn) {
   return false;
 }
 
-static void kill_child(struct Child *ch) {
+static void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
 
-static bool parse_config(struct Child *ch, FILE *fp, char *name) {
+static bool parse_config(child_t *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
 
@@ -142,7 +142,7 @@ static bool parse_config(struct Child *ch, FILE *fp, char *name) {
 
 // TODO/FIXME: This function is too long
 static void parse_confdir(const char *dirpath) {
-  struct Child *prev_ch = NULL;
+  child_t *prev_ch = NULL;
   struct dirent **dirlist;
   int dirn;
   char path[PATH_MAX + 1];
@@ -170,7 +170,7 @@ static void parse_confdir(const char *dirpath) {
       break;
     }
 
-    struct Child *ch = safe_malloc(sizeof(struct Child));
+    child_t *ch = safe_malloc(sizeof(child_t));
 
     if (parse_config(ch, fp, dirlist[i]->d_name)) {
       if (prev_ch) {
@@ -188,7 +188,7 @@ static void parse_confdir(const char *dirpath) {
 
   prev_ch = NULL;
 
-  for (struct Child *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
+  for (child_t *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
     if (!has_config(ch, dirlist, dirn)) {
       if (prev_ch) {
         prev_ch->next = ch->next;
@@ -208,7 +208,7 @@ static void parse_confdir(const char *dirpath) {
   free(dirlist);
 }
 
-static void spawn_child(struct Child *ch) {
+static void spawn_child(child_t *ch) {
   pid_t ch_pid;
   char *argv[16];
   sigset_t empty_mask;
@@ -243,7 +243,7 @@ static void spawn_child(struct Child *ch) {
 }
 
 static bool respawn_terminated_children(void) {
-  struct Child *ch;
+  child_t *ch;
   int status;
   pid_t ch_pid;
   bool success = true;
@@ -269,7 +269,7 @@ static bool respawn_terminated_children(void) {
   return success;
 }
 
-static bool safe_to_respaw_quarantined(struct Child *ch) {
+static bool safe_to_respaw_quarantined(child_t *ch) {
   time_t now = time(NULL);
 
   return !(ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_TIME.tv_sec);
@@ -277,7 +277,7 @@ static bool safe_to_respaw_quarantined(struct Child *ch) {
 
 
 static void spawn_quarantined_children(void) {
-  struct Child *ch;
+  child_t *ch;
 
   for (ch = head_ch; ch != NULL; ch = ch->next) {
     if (ch->quarantined && safe_to_respaw_quarantined(ch)) {
@@ -287,7 +287,7 @@ static void spawn_quarantined_children(void) {
 }
 
 static void cleanup(void) {
-  struct Child *tmp_ch;
+  child_t *tmp_ch;
 
   while (head_ch != NULL) {
     tmp_ch = head_ch->next;
