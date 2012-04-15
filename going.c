@@ -269,15 +269,17 @@ static bool respawn_terminated_children(void) {
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
     for (ch = head_ch; ch; ch = ch->next) {
       if (ch_pid == ch->pid) {
-        if (ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_LIMIT) {
-          slog(LOG_WARNING, "Child %s terminated after: %ds. Due to its " \
-              "short life (limit: %ds) it will be quarantined for %ds",
-               ch->name, now - ch->up_at, QUARANTINE_LIMIT, QUARANTINE_TIME.tv_sec);
+        if (ch->up_at > 0
+            && now >= ch->up_at
+            && now - ch->up_at < QUARANTINE_LIMIT) {
+          slog(LOG_WARNING, "%s terminated after: %ds (limit: %ds) and " \
+              "will be quarantined for %ds", ch->name, now - ch->up_at,
+              QUARANTINE_LIMIT, QUARANTINE_TIME.tv_sec);
           ch->quarantined = true;
           success = false;
           continue;
         }
-        slog(LOG_WARNING, "Child %s terminated after: %ds",
+        slog(LOG_WARNING, "%s terminated after: %ds",
              ch->name, now - ch->up_at);
         spawn_child(ch);
       }
@@ -289,7 +291,8 @@ static bool respawn_terminated_children(void) {
 static bool safe_to_respaw_quarantined(child_t *ch) {
   time_t now = time(NULL);
 
-  return !(ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < QUARANTINE_TIME.tv_sec);
+  return !(ch->up_at > 0 && now >= ch->up_at
+           && now - ch->up_at < QUARANTINE_TIME.tv_sec);
 }
 
 
