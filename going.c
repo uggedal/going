@@ -22,6 +22,7 @@
 
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 128
+#define CHILD_ARGV_LEN CHILD_CMD_SIZE/2
 
 #define CONFIG_DIR "/etc/going.d"
 #define CONFIG_LINE_BUFFER_SIZE 256
@@ -208,15 +209,33 @@ static void parse_confdir(const char *dirpath) {
   free(dirlist);
 }
 
+// TODO/FIXME: This function is too long
 static void spawn_child(child_t *ch) {
+  char *argv[CHILD_ARGV_LEN], cmd_buf[CHILD_CMD_SIZE+1], *cmd_part;
   pid_t ch_pid;
-  char *argv[16];
   sigset_t empty_mask;
 
   sigemptyset(&empty_mask);
 
-  argv[0] = basename(ch->cmd);
-  argv[1] = NULL;
+  safe_strcpy(cmd_buf, ch->cmd, sizeof(cmd_buf));
+  char *cmd_p = cmd_buf;
+
+  int i = 1;
+  while ((cmd_part = strsep(&cmd_p, " ")) != NULL) {
+    if (strnlen(cmd_part, 1) == 0) {
+      continue;
+    }
+    if (i == 1) {
+      argv[0] = cmd_part;
+      argv[1] = basename(cmd_part);
+    } else if (i == CHILD_ARGV_LEN-1) {
+      break;
+    } else {
+      argv[i] = cmd_part;
+    }
+    i++;
+  }
+  argv[i] = NULL;
 
   ch->quarantined = false;
 
@@ -228,7 +247,7 @@ static void spawn_child(child_t *ch) {
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
 
-      execvp(ch->cmd, argv);
+      execvp(argv[0], argv + 1);
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
     case -1:
