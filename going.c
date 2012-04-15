@@ -368,9 +368,7 @@ int main(int argc, char **argv) {
 
   const char *confdir = parse_args(argc, argv);
 
-  if (atexit(cleanup) != 0) {
-    slog(LOG_ERR, "Unable to register atexit(3) function");
-  }
+  atexit(cleanup);
 
   block_signals(&block_mask);
 
