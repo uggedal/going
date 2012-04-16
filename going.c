@@ -260,30 +260,21 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
-// TODO/FIXME: This function is too long
-static void parse_confdir(const char *dirpath) {
+static void append_children(const char *dpath, struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
-  struct dirent **dirlist;
-  int dirn;
   char path[PATH_MAX + 1];
   FILE *fp;
 
-  dirn = scandir(dirpath, &dirlist, only_files_selector, alphasort);
-  if (dirn < 0) {
-    slog(LOG_ALERT, "Can't open %s: %m", dirpath);
-    exit(EX_OSFILE);
-  }
-
-  for (int i = dirn - 1; i >= 0; i--) {
+  for (int i = dn - 1; i >= 0; i--) {
     // TODO: What about updating existing configurations? Either:
     //       - Update child struct, kill, wait and respawn or
     //       - Update struct for quarantined childs only
 
-    if (has_child(dirlist[i]->d_name)) {
+    if (has_child(dlist[i]->d_name)) {
       continue;
     }
 
-    snprintf(path, PATH_MAX + 1, "%s/%s", dirpath, dirlist[i]->d_name);
+    snprintf(path, PATH_MAX + 1, "%s/%s", dpath, dlist[i]->d_name);
 
     if ((fp = fopen(path, "r")) == NULL) {
       slog(LOG_ERR, "Can't read %s: %m", path);
@@ -292,7 +283,7 @@ static void parse_confdir(const char *dirpath) {
 
     child_t *ch = safe_malloc(sizeof(child_t));
 
-    if (parse_config(ch, fp, dirlist[i]->d_name)) {
+    if (parse_config(ch, fp, dlist[i]->d_name)) {
       if (prev_ch) {
         prev_ch->next = ch;
       } else {
@@ -305,11 +296,13 @@ static void parse_confdir(const char *dirpath) {
 
     fclose(fp);
   }
+}
 
-  prev_ch = NULL;
+static void remove_children_without_config(struct dirent **dlist, int dn) {
+  child_t *prev_ch = NULL;
 
   for (child_t *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
-    if (!has_config(ch, dirlist, dirn)) {
+    if (!has_config(ch, dlist, dn)) {
       if (prev_ch) {
         prev_ch->next = ch->next;
       } else {
@@ -320,12 +313,32 @@ static void parse_confdir(const char *dirpath) {
       free(ch);
     }
   }
+}
 
-  while (dirn--) {
-    free(dirlist[dirn]);
+// Reads configuration files from the directory given with the
+// `-d` command line flag or the default `/etc/going.d`. Based on the
+// files in this directory a linked list of child structures are built.
+// If called with an existing linked list of children the function
+// will append any new children or remove children which no longer has
+// a corresponding configuration file.
+static void parse_confdir(const char *path) {
+  struct dirent **dlist;
+
+  int dn = scandir(path, &dlist, only_files_selector, alphasort);
+  if (dn < 0) {
+    slog(LOG_ALERT, "Can't open %s: %m", path);
+    exit(EX_OSFILE);
   }
 
-  free(dirlist);
+  append_children(path, dlist, dn);
+
+  remove_children_without_config(dlist, dn);
+
+  while (dn--) {
+    free(dlist[dn]);
+  }
+
+  free(dlist);
 }
 
 // Execution of children
