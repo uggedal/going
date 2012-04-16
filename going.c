@@ -330,18 +330,38 @@ static inline bool has_config(char *name, struct dirent **dlist, int dn) {
   return false;
 }
 
+// Iterates over the global linked list of children and checks that
+// each is still present in the given list of configuration files. Those
+// without a corresponding configuration file is removed form the linked
+// list and the child process is terminated.
 static void remove_old_children(struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
 
+  // Iterate over all children, point `prev_ch` to the active child
+  // right before the next iteration.
   for (child_t *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
+    // Check if we have a configuration file for this child identified
+    // by its name.
     if (!has_config(ch->name, dlist, dn)) {
+      // If we have no configuration file for this child we have to
+      // remove it.
       if (prev_ch) {
+        // If we have a child before this child in the global linked list
+        // we point that to the child after this one. If this is the
+        // last child the child before this will be the new last child.
         prev_ch->next = ch->next;
       } else {
+        // If this child is the first in the global linked list we point
+        // our global head pointer to the child after this one. If this is
+        // the first and last child, the head pointer will be null.
         head_ch = ch->next;
       }
 
+      // We terminate the child process when it no longer has a
+      // configuration file.
       kill_child(ch);
+      // After terminating the child process we make sure to free the
+      // memory its scructure took up on the heap.
       cleanup_child(ch);
     }
   }
