@@ -490,7 +490,7 @@ int main(int argc, char **argv) {
 
   const char *confdir = parse_args(argc, argv);
 
-  atexit(cleanup);
+  atexit(cleanup_children);
 
   block_signals(&block_mask);
 
