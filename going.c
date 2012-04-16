@@ -407,7 +407,6 @@ static void parse_confdir(const char *dir) {
 // Spawns the command line of the given child by forking and execing
 // a child process of the parent `going` process.
 static void spawn_child(child_t *ch) {
-  pid_t ch_pid;
 
   // A copy of the command line is made so that we can use `strsep(3)`
   // which modifies its argument against it. It is safe to use `strcpy(3)`
@@ -422,6 +421,7 @@ static void spawn_child(child_t *ch) {
   int i = 1;
   char *argv[CHILD_ARGV_LEN];
   char *cmd_word;
+
   // We iterate until the pointer returned by `strsep(3)` into our command
   // line buffer is null, meaning no new words sperated by a space was found.
   while ((cmd_word = strsep(&cmd_p, " ")) != NULL) {
@@ -451,6 +451,8 @@ static void spawn_child(child_t *ch) {
   // The child is no longer quarantined since it obviously got the go-ahead
   // to spawn.
   ch->quarantined = false;
+
+  pid_t ch_pid;
 
   // We iterate until we get the desired behavior from `fork(3)`.
   while (true) {
