@@ -483,10 +483,10 @@ static void spawn_child(child_t *ch) {
       // children terminated.
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
-    }
+
     // If the return value of `fork(3)` is greater than zero we're in the
     // parent process.
-    else if (ch_pid > 0) {
+    } else if (ch_pid > 0) {
       // We note the time that the child process started so that we can track
       // its uptime.
       ch->up_at = time(NULL);
@@ -494,10 +494,10 @@ static void spawn_child(child_t *ch) {
       // know which process failed if we get a `SIGCHLD` signal later.
       ch->pid = ch_pid;
       return;
-    }
+
     // If the return value of `fork(3)` is negative the call did not succeed.
     // We log the error and wait a little before trying again.
-    else {
+    } else {
       slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
       sleep(EMERG_SLEEP);
     }
