@@ -320,29 +320,26 @@ static int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
-// Reads configuration files from the directory given with the
-// `-d` command line flag or the default `/etc/going.d`. Based on the
-// files in this directory a linked list of child structures are built.
-// If called with an existing linked list of children the function
-// will append any new children or remove children which no longer has
-// a corresponding configuration file.
+// Reads configuration files from the directory given and adds/removes
+// elements to a linked list of children accordingly.
 static void parse_confdir(const char *dir) {
   struct dirent **dlist;
 
   int dn = scandir(dir, &dlist, only_files_selector, alphasort);
+  // If the configuration directory is unavailable we're in serious trouble
+  // and simply exit.
   if (dn < 0) {
     slog(LOG_ALERT, "Can't open %s: %m", dir);
     exit(EX_OSFILE);
   }
 
   add_new_children(dir, dlist, dn);
-
   remove_old_children(dlist, dn);
 
+  // We have to free the heap allocated memory for the directory list.
   while (dn--) {
     free(dlist[dn]);
   }
-
   free(dlist);
 }
 
