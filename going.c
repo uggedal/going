@@ -1,4 +1,5 @@
-// TODO: Intro here. C99, Linux spcific, bla, bla.
+// TODO: Intro here. C99, Linux spcific, SIGCHLD based, runner, not
+//       monitor, bla, bla.
 // TODO: Connect the paragraphs so that it reads well.
 
 // Dependencies
@@ -403,53 +404,101 @@ static void parse_confdir(const char *dir) {
 // Execution of children
 // ---------------------
 
-// TODO/FIXME: This function is too long
+// Spawns the command line of the given child by forking and execing
+// a child process of the parent `going` process.
 static void spawn_child(child_t *ch) {
-  char cmd_buf[CHILD_CMD_SIZE+1];
-  char *argv[CHILD_ARGV_LEN];
-  char *cmd_word;
   pid_t ch_pid;
-  sigset_t empty_mask;
 
-  sigemptyset(&empty_mask);
-
+  // A copy of the command line is made so that we can use `strsep(3)`
+  // which modifies its argument against it. It is safe to use `strcpy(3)`
+  // to copy the command line from our child structure into the buffer since
+  // we know that their constant sizes are equal.
+  char cmd_buf[CHILD_CMD_SIZE+1];
   char *cmd_p = strcpy(cmd_buf, ch->cmd);
 
+  // To avoid allocating space on the heap for the argument vector we
+  // use a constant sized array of pointers into the constant sized
+  // `cmd_buf` buffer.
   int i = 1;
+  char *argv[CHILD_ARGV_LEN];
+  char *cmd_word;
+  // We iterate until the pointer returned by `strsep(3)` into our command
+  // line buffer is null, meaning no new words sperated by a space was found.
   while ((cmd_word = strsep(&cmd_p, " ")) != NULL) {
+    // If the word returned is the null byte we're dealing with repeating
+    // spaces, so we skip it.
     if (*cmd_word != '\0') {
+      // If we're in our first iteration we setup the two first slots
+      // of the argument vector which explains why we initialized the index
+      // to one.
       if (i == 1) {
+        // The first argument will be the path to the binary we'll spawn.
         argv[0] = cmd_word;
+        // The second argument will be the base filename of the path
+        // to the binary.
         argv[1] = basename(cmd_word);
       } else {
+        // The following arguments will be arguments given to the binary
+        // we'll spawn.
         argv[i] = cmd_word;
       }
       i++;
     }
   }
+  // The argument vector given to `execvp(3)` needs to be null terminated.
   argv[i] = NULL;
 
+  // The child is no longer quarantined since it obviously got the go-ahead
+  // to spawn.
   ch->quarantined = false;
 
-  while (true) switch (ch_pid = fork()) {
-    case 0:
+  // We iterate until we get the desired behavior from `fork(3)`.
+  while (true) {
+    // `fork(3)` creates a new process which is an exact copy of its invoking
+    // process. We are inside the child process if the return value is zero.
+    if ((ch_pid = fork()) == 0) {
+      // We initialize an empty signal mask and block based in it, resulting
+      // in blockage of no signals. This is done since the parent process
+      // blocks certain signals and the child created by a `fork(3)` inherits
+      // its parents block mask.
+      sigset_t empty_mask;
+      sigemptyset(&empty_mask);
       sigprocmask(SIG_SETMASK, &empty_mask, NULL);
 
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
 
+      // `execvp(3)` is used to replace this child process with the binary
+      // reciding at the path we give as the first argument. In addition it
+      // tries to look up the binary in `$PATH` if a non-absolute path is
+      // given. By incrementing the `argv` pointer we give as the second
+      // argument the receiver sees it as `argv[1:]`.
       execvp(argv[0], argv + 1);
+      // If we reach this code the `execvp(3)` call failed. We log the error
+      // and exit this child process. Note that the normal flow in the parent
+      // continues, but it will get a `SIGCHLD` signal since one of its
+      // children terminated.
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
       exit(EXIT_FAILURE);
-    case -1:
-      slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
-      sleep(EMERG_SLEEP);
-      break;
-    default:
+    }
+    // If the return value of `fork(3)` is greater than zero we're in the
+    // parent process.
+    else if (ch_pid > 0) {
+      // We note the time that the child process started so that we can track
+      // its uptime.
       ch->up_at = time(NULL);
+      // Storing the process id of the child process is important so that we
+      // know which process failed if we get a `SIGCHLD` signal later.
       ch->pid = ch_pid;
       return;
+    }
+    // If the return value of `fork(3)` is negative the call did not succeed.
+    // We log the error and wait a little before trying again.
+    else {
+      slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
+      sleep(EMERG_SLEEP);
+    }
   }
 }
 
