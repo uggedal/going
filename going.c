@@ -607,6 +607,9 @@ static inline char *parse_args(int argc, char **argv) {
   exit(EX_USAGE);
 }
 
+// Entrypoint
+// ----------
+
 int main(int argc, char **argv) {
   sigset_t block_mask;
 
