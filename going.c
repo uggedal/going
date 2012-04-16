@@ -1,4 +1,4 @@
-// TODO: Intro here
+// TODO: Intro here. C99, Linux spcific, bla, bla.
 
 // Dependencies
 // ------------
