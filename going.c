@@ -1,4 +1,5 @@
 // TODO: Intro here. C99, Linux spcific, bla, bla.
+// TODO: Connect the paragraphs so that it reads well.
 
 // Dependencies
 // ------------
