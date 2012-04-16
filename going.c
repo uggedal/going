@@ -141,7 +141,12 @@ static void *safe_malloc(size_t size)
   return mp;
 }
 
-static bool has_child(char *name) {
+// Children handling
+// -----------------
+
+// Check whether our liked list of children contains the given child
+// identified by name.
+static inline bool has_child(char *name) {
   for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
     if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
       return true;
@@ -150,7 +155,9 @@ static bool has_child(char *name) {
   return false;
 }
 
-static bool has_config(child_t *ch, struct dirent **dirlist, int dirn) {
+// Check whether a given child still is present in a directory listing of our
+// configuration directory.
+static inline bool has_config(child_t *ch, struct dirent **dirlist, int dirn) {
   for (int i = dirn - 1; i >= 0; i--) {
     if (strncmp(ch->name, dirlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
       return true;
@@ -159,6 +166,9 @@ static bool has_config(child_t *ch, struct dirent **dirlist, int dirn) {
   return false;
 }
 
+// Terminate a given child by sending it the `SIGTERM` signal.
+// TODO: Should we wait on the child to exit, and send it a
+// SIGKILL signal if it fails to obey?
 static void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
