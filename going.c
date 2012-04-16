@@ -189,29 +189,61 @@ static void cleanup_children(void) {
   }
 }
 
+
+// Configuration
+// -------------
+
+// Parses the given configuration file into the given child structure.
+// Returns true if the format of the configuration file was valid and
+// false otherwise.
 static bool parse_config(child_t *ch, FILE *fp, char *name) {
-  bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
 
   ch->pid = 0;
   ch->up_at = 0;
-  ch->quarantined = true;
   ch->next = NULL;
 
+  // We set the child as quarantined so that we can use the
+  // `spawn_quarantined_children()` function to bring it up.
+  ch->quarantined = true;
+
+  // Since the name member of our child structure has a constant size we have
+  // to ensure that the name given from the configuration's filename fits.
+  // If the name was too large we return immediately with an invalid status.
   if (!safe_strcpy(ch->name, name, sizeof(ch->name))) {
     slog(LOG_ERR, "Configuration file name %s is too long (max: %d)",
          name, CHILD_NAME_SIZE);
     return false;
   }
 
+  // We iterate over the lines in the configuration file until we reach EOF.
+  // For safety we use `fgets(3)` which reads at most one less than the given
+  // size of characters into the buffer and terminates it.
   while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
+
+    // The configuration key is found by searching the line until we find
+    // a `=` character. `strsep(3)` returns a pointer equal to the given
+    // line pointer and overwrites the `=` character by a terminating `\0`
+    // character. `strsep(3)` then updates the given line pointer to point
+    // past the token. In a successive call to `strsep(3)` to retrieve the
+    // configuration value we search from the new location of the line pointer
+    // until end of line.
     key = strsep(&line, "=");
     value = strsep(&line, "\n");
 
+    // If `strsep(3)` did not find the tokens we searched for the returned
+    // pointers will be null.
     if (key != NULL && value != NULL) {
+
+      // We check that the configuration key matches the command key and
+      // the value contains at least one character.
       if (strcmp(CONFIG_CMD_KEY, key) == 0 && str_not_empty(value)) {
+
+        // If we're able to copy the command value read from the configuration
+        // file into the constant sized `cmd` member on our child structure
+        // we return immediately with a successfull status.
         if (safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
-          valid = true;
+          return true;
         } else {
           slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
                CONFIG_CMD_KEY, name, CHILD_CMD_SIZE);
@@ -219,7 +251,7 @@ static bool parse_config(child_t *ch, FILE *fp, char *name) {
       }
     }
   }
-  return valid;
+  return false;
 }
 
 // A filter function used with `scandir(3)` which returns true for
