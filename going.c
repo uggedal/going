@@ -79,34 +79,47 @@ static child_t *head_ch = NULL;
 // Utility functions
 // -----------------
 
-// A safe alternative to `strcpy(3)` (overflow of desination string) or
-// `strncpy(3)` (does not ensue a terminating null in destination string).
-// If we had `strlcpy(3)` in GLIBC this function would be moot...
-// Returns true if the source string fit inside the destination or false
+// A safe inline function for copying a string.
+// Returns true if the source string fits within the given size or false
 // if it was truncated according to the size argument.
 static inline bool safe_strcpy(char *dst, const char *src, size_t size) {
+  // We use `snprintf(3)` since `strcpy(3)` can overflow its desination string
+  // and `strncpy(3)` does not ensue a terminating null for its destination.
+  // If we had `strlcpy(3)` in GLIBC this function would be moot...
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
-// Simple function to determine whether a string has any content.
+// A simple inline function to determine whether a string has any content.
 static inline bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
 
+// A `syslog(3)` convenience wrapper which takes a priority level, a
+// log message format, and a variable number of arguments to the message
+// format.
 static void slog(int priority, char *message, ...)
 {
   va_list ap;
   sigset_t all_mask, orig_mask;
 
+  // We initialize a signal mask to contain all signals and block
+  // them while we're logging to ensure a signal does not interrupt us. The
+  // original signal mask is stored so we can reset it after logging.
   sigfillset(&all_mask);
   sigprocmask(SIG_BLOCK, &all_mask, &orig_mask);
 
+  // We log to the daemon log, typically found in `/var/log/daemon.log` with
+  // our ident and process id as prefixes.
   openlog(IDENT, LOG_PID, LOG_DAEMON);
+
+  // We use the `vsyslog(3)` function which takes a `va_list` in stead
+  // of iterating over the list ourselves.
   va_start(ap, message);
   vsyslog(priority, message, ap);
   va_end(ap);
   closelog();
 
+  // We reset our signal mask to the one in use before we blocked all signals.
   sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
 
