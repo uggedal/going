@@ -7,7 +7,7 @@ CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
 CFLAGS+=-DVERSION=\"${VERSION}\"
 LDFLAGS=-s
 
-.PHONY: clean debug
+.PHONY: clean doc debug
 
 all: going
 
@@ -16,6 +16,9 @@ clean:
 
 install: all
 	@install going $(PREFIX)/sbin
+
+doc:
+	@docco going.c
 
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
