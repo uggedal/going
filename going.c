@@ -248,40 +248,70 @@ static inline bool has_child(char *name) {
   return false;
 }
 
+// Returns a pointer to the tail child of the global linked list
+// of children. Returns null if the head child is null.
+static child_t *get_tail_child(void) {
+  child_t *tail_ch;
+
+  for (tail_ch = head_ch; tail_ch; tail_ch = tail_ch->next);
+
+  return tail_ch;
+}
+
+// Iterates over its given list of configuration files and adds any unseen
+// children to our global linked list.
 static void add_new_children(const char *dir, struct dirent **dlist, int dn) {
-  child_t *prev_ch = NULL;
+  child_t *tail_ch = get_tail_child();
   char path[PATH_MAX + 1];
   FILE *fp;
 
   for (int i = dn - 1; i >= 0; i--) {
+
+    // If we already have a child by the name based on this configuration
+    // file we simply skip checking it.
     // TODO: What about updating existing configurations? Either:
     //       - Update child struct, kill, wait and respawn or
     //       - Update struct for quarantined childs only
-
     if (has_child(dlist[i]->d_name)) {
       continue;
     }
 
+    // Create a full path to this configuration file.
     snprintf(path, PATH_MAX + 1, "%s/%s", dir, dlist[i]->d_name);
 
+    // Try to open the configuration file for reading. If we're unable to
+    // open it we skip this configuration.
     if ((fp = fopen(path, "r")) == NULL) {
       slog(LOG_ERR, "Can't read %s: %m", path);
-      break;
+      continue;
     }
 
+    // Allocate memory to hold a child structure for this configuration file.
     child_t *ch = safe_malloc(sizeof(child_t));
 
+    // Try to parse this configuration file into the child structure we
+    // recently allocated.
     if (parse_config(ch, fp, dlist[i]->d_name)) {
-      if (prev_ch) {
-        prev_ch->next = ch;
+      // If we successfully parsed this configuration file we have to
+      // add the resulting child structure to our linked list of children.
+      if (tail_ch) {
+        // If we have a non-null tail child we add this child after it.
+        tail_ch->next = ch;
       } else {
+        // If we don't have a tail child, this child is shall be the
+        // head of the global linked list.
         head_ch = ch;
       }
-      prev_ch = ch;
+      tail_ch = ch;
     } else {
+      // If we were unable to parse the configuration we free the allocated
+      // memory for the child strucure since we don't longer need it and have
+      // no references to it after this function exits.
       cleanup_child(ch);
     }
 
+    // Flush the stream and close the underlying file descriptor for the
+    // opened configuration file.
     fclose(fp);
   }
 }
