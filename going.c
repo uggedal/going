@@ -248,7 +248,7 @@ static inline bool has_child(char *name) {
   return false;
 }
 
-static void append_children(const char *dir, struct dirent **dlist, int dn) {
+static void add_new_children(const char *dir, struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
   char path[PATH_MAX + 1];
   FILE *fp;
@@ -297,7 +297,7 @@ static inline bool has_config(char *name, struct dirent **dlist, int dn) {
   return false;
 }
 
-static void remove_children_without_config(struct dirent **dlist, int dn) {
+static void remove_old_children(struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
 
   for (child_t *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
@@ -335,9 +335,9 @@ static void parse_confdir(const char *dir) {
     exit(EX_OSFILE);
   }
 
-  append_children(dir, dlist, dn);
+  add_new_children(dir, dlist, dn);
 
-  remove_children_without_config(dlist, dn);
+  remove_old_children(dlist, dn);
 
   while (dn--) {
     free(dlist[dn]);
