@@ -409,7 +409,7 @@ static void parse_confdir(const char *dir) {
 static void spawn_child(child_t *ch) {
 
   // A copy of the command line is made so that we can use `strsep(3)`
-  // which modifies its argument against it. It is safe to use `strcpy(3)`
+  // (which modifies its argument) against it. It is safe to use `strcpy(3)`
   // to copy the command line from our child structure into the buffer since
   // we know that their constant sizes are equal.
   char cmd_buf[CHILD_CMD_SIZE+1];
@@ -459,7 +459,7 @@ static void spawn_child(child_t *ch) {
     // `fork(3)` creates a new process which is an exact copy of its invoking
     // process. We are inside the child process if the return value is zero.
     if ((ch_pid = fork()) == 0) {
-      // We initialize an empty signal mask and block based in it, resulting
+      // We initialize an empty signal mask and block based on it, resulting
       // in blockage of no signals. This is done since the parent process
       // blocks certain signals and the child created by a `fork(3)` inherits
       // its parents block mask.
