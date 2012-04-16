@@ -328,6 +328,9 @@ static void parse_confdir(const char *dirpath) {
   free(dirlist);
 }
 
+// Execution of children
+// ---------------------
+
 // TODO/FIXME: This function is too long
 static void spawn_child(child_t *ch) {
   char cmd_buf[CHILD_CMD_SIZE+1];
@@ -425,15 +428,8 @@ static void spawn_quarantined_children(void) {
   }
 }
 
-static void cleanup(void) {
-  child_t *tmp_ch;
-
-  while (head_ch != NULL) {
-    tmp_ch = head_ch->next;
-    free(head_ch);
-    head_ch = tmp_ch;
-  }
-}
+// Signal handling
+// ---------------
 
 static inline void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
@@ -442,19 +438,6 @@ static inline void block_signals(sigset_t *block_mask) {
   sigaddset(block_mask, SIGINT);
   sigaddset(block_mask, SIGHUP);
   sigprocmask(SIG_BLOCK, block_mask, NULL);
-}
-
-static inline char *parse_args(int argc, char **argv) {
-  if (argc == 1) {
-    return CONFIG_DIR;
-  }
-
-  if (argc == 3 && strcmp("-d", argv[1]) == 0 && str_not_empty(argv[2])) {
-    return argv[2];
-  }
-
-  fprintf(stderr, USAGE);
-  exit(EX_USAGE);
 }
 
 static void wait_forever(sigset_t *block_mask, const char *confdir) {
@@ -483,6 +466,22 @@ static void wait_forever(sigset_t *block_mask, const char *confdir) {
       //       - What about children respawning too fast (in sleep mode)?
       exit(EXIT_FAILURE);
   }
+}
+
+// Argument parsing
+// ----------------
+
+static inline char *parse_args(int argc, char **argv) {
+  if (argc == 1) {
+    return CONFIG_DIR;
+  }
+
+  if (argc == 3 && strcmp("-d", argv[1]) == 0 && str_not_empty(argv[2])) {
+    return argv[2];
+  }
+
+  fprintf(stderr, USAGE);
+  exit(EX_USAGE);
 }
 
 int main(int argc, char **argv) {
