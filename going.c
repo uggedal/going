@@ -173,6 +173,22 @@ static void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
 
+// Free the memory consumed by our linked list of children.
+static void cleanup_children(void) {
+  child_t *tmp_ch;
+
+  // Iterate until the head pointer of our linked list is null.
+  while (head_ch != NULL) {
+    // Store a temporary pointer to the next child after the current head
+    // of the linked list.
+    tmp_ch = head_ch->next;
+    // Free the memory the current head of the linked list points to.
+    free(head_ch);
+    // Set the temporary pointer as the current head of the linked list.
+    head_ch = tmp_ch;
+  }
+}
+
 static bool parse_config(child_t *ch, FILE *fp, char *name) {
   bool valid = false;
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
