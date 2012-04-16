@@ -144,28 +144,6 @@ static void *safe_malloc(size_t size)
 // Children handling
 // -----------------
 
-// Check whether our liked list of children contains the given child
-// identified by name.
-static inline bool has_child(char *name) {
-  for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
-    if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Check whether a given child still is present in a directory listing of our
-// configuration directory.
-static inline bool has_config(child_t *ch, struct dirent **dirlist, int dirn) {
-  for (int i = dirn - 1; i >= 0; i--) {
-    if (strncmp(ch->name, dirlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
 // Terminate a given child by sending it the `SIGTERM` signal.
 // TODO: Should we wait on the child to exit, and send it a
 // SIGKILL signal if it fails to obey?
@@ -259,10 +237,15 @@ static bool parse_config(child_t *ch, FILE *fp, char *name) {
   return false;
 }
 
-// A filter function used with `scandir(3)` which returns true for
-// all files in a directory excluding `.` and `..`.
-static int only_files_selector(const struct dirent *d) {
-  return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
+// Check whether our liked list of children contains the given child
+// identified by name.
+static inline bool has_child(char *name) {
+  for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
+    if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 static void append_children(const char *dpath, struct dirent **dlist, int dn) {
@@ -303,11 +286,22 @@ static void append_children(const char *dpath, struct dirent **dlist, int dn) {
   }
 }
 
+// Check whether a given child identified by name still is present in a
+// directory listing of our configuration directory.
+static inline bool has_config(char *name, struct dirent **dlist, int dn) {
+  for (int i = dn - 1; i >= 0; i--) {
+    if (strncmp(name, dlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 static void remove_children_without_config(struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
 
   for (child_t *ch = head_ch; ch != NULL; prev_ch = ch, ch = ch->next) {
-    if (!has_config(ch, dlist, dn)) {
+    if (!has_config(ch->name, dlist, dn)) {
       if (prev_ch) {
         prev_ch->next = ch->next;
       } else {
@@ -318,6 +312,12 @@ static void remove_children_without_config(struct dirent **dlist, int dn) {
       cleanup_child(ch);
     }
   }
+}
+
+// A filter function used with `scandir(3)` which returns true for
+// all files in a directory excluding `.` and `..`.
+static int only_files_selector(const struct dirent *d) {
+  return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
 // Reads configuration files from the directory given with the
