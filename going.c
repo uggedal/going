@@ -248,7 +248,7 @@ static inline bool has_child(char *name) {
   return false;
 }
 
-static void append_children(const char *dpath, struct dirent **dlist, int dn) {
+static void append_children(const char *dir, struct dirent **dlist, int dn) {
   child_t *prev_ch = NULL;
   char path[PATH_MAX + 1];
   FILE *fp;
@@ -262,7 +262,7 @@ static void append_children(const char *dpath, struct dirent **dlist, int dn) {
       continue;
     }
 
-    snprintf(path, PATH_MAX + 1, "%s/%s", dpath, dlist[i]->d_name);
+    snprintf(path, PATH_MAX + 1, "%s/%s", dir, dlist[i]->d_name);
 
     if ((fp = fopen(path, "r")) == NULL) {
       slog(LOG_ERR, "Can't read %s: %m", path);
@@ -326,16 +326,16 @@ static int only_files_selector(const struct dirent *d) {
 // If called with an existing linked list of children the function
 // will append any new children or remove children which no longer has
 // a corresponding configuration file.
-static void parse_confdir(const char *path) {
+static void parse_confdir(const char *dir) {
   struct dirent **dlist;
 
-  int dn = scandir(path, &dlist, only_files_selector, alphasort);
+  int dn = scandir(dir, &dlist, only_files_selector, alphasort);
   if (dn < 0) {
-    slog(LOG_ALERT, "Can't open %s: %m", path);
+    slog(LOG_ALERT, "Can't open %s: %m", dir);
     exit(EX_OSFILE);
   }
 
-  append_children(path, dlist, dn);
+  append_children(dir, dlist, dn);
 
   remove_children_without_config(dlist, dn);
 
