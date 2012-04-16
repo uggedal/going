@@ -378,7 +378,10 @@ static int only_files_selector(const struct dirent *d) {
 static void parse_confdir(const char *dir) {
   struct dirent **dlist;
 
+  // We use `scandir(3)` since it gives us a nice sorted list of the
+  // files in a directory compared to `opendir(3)`.
   int dn = scandir(dir, &dlist, only_files_selector, alphasort);
+
   // If the configuration directory is unavailable we're in serious trouble
   // and simply exit.
   if (dn < 0) {
@@ -389,7 +392,8 @@ static void parse_confdir(const char *dir) {
   add_new_children(dir, dlist, dn);
   remove_old_children(dlist, dn);
 
-  // We have to free the heap allocated memory for the directory list.
+  // We have to free the heap allocated memory for the directory list
+  // initialized by `scandir(3)`.
   while (dn--) {
     free(dlist[dn]);
   }
