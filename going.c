@@ -302,6 +302,8 @@ static void add_new_children(const char *dir, struct dirent **dlist, int dn) {
         // head of the global linked list.
         head_ch = ch;
       }
+      // This child is now the new tail of the global linked list of
+      // children.
       tail_ch = ch;
     } else {
       // If we were unable to parse the configuration we free the allocated
