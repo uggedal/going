@@ -82,6 +82,8 @@ TODO
 ### 1.0.0
 
 * Fix all inline TODOs in source.
+* Fix memory leak when adding new child.
+* Check if we have memory leak when removing child.
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
 * Document requirements (kernel version) with note about usage of non-portable

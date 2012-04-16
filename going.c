@@ -173,6 +173,11 @@ static void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
 
+// Free the memory consumed by the given child.
+static inline void cleanup_child(child_t *ch) {
+  free(ch);
+}
+
 // Free the memory consumed by our linked list of children.
 static void cleanup_children(void) {
   child_t *tmp_ch;
@@ -183,7 +188,7 @@ static void cleanup_children(void) {
     // of the linked list.
     tmp_ch = head_ch->next;
     // Free the memory the current head of the linked list points to.
-    free(head_ch);
+    cleanup_child(head_ch);
     // Set the temporary pointer as the current head of the linked list.
     head_ch = tmp_ch;
   }
@@ -291,7 +296,7 @@ static void append_children(const char *dpath, struct dirent **dlist, int dn) {
       }
       prev_ch = ch;
     } else {
-      free(ch);
+      cleanup_child(ch);
     }
 
     fclose(fp);
@@ -310,7 +315,7 @@ static void remove_children_without_config(struct dirent **dlist, int dn) {
       }
 
       kill_child(ch);
-      free(ch);
+      cleanup_child(ch);
     }
   }
 }
