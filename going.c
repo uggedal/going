@@ -123,15 +123,21 @@ static void slog(int priority, char *message, ...)
   sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
 
+// A wrapper arround `malloc(3)` which blocks until we get a pointer to the
+// requested memory on the heap.
 static void *safe_malloc(size_t size)
 {
   void	*mp;
 
-  while ((mp = malloc(size)) == NULL) {
+  // We retry until we get a non-null pointer to allocated memory.
+  // `calloc(3)` is used in stead of `malloc(3)` so that the continous block
+  // of memory we receive a pointer to is all zeroed out.
+  while ((mp = calloc(1, size)) == NULL) {
+    // We were unable to allocate memory so we log the error and give the
+    // system some time to get its act together.
     slog(LOG_EMERG, "Could not malloc, sleeping %ds", EMERG_SLEEP);
     sleep(EMERG_SLEEP);
   }
-  memset(mp, 0, size);
   return mp;
 }
 
