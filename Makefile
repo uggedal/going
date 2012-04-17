@@ -1,10 +1,7 @@
-VERSION=0.1.0
-
 PREFIX=/usr
 
 CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
 CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
-CFLAGS+=-DVERSION=\"${VERSION}\"
 LDFLAGS=-s
 
 .PHONY: clean doc debug
