@@ -5,21 +5,59 @@
 // Dependencies
 // ------------
 
-// TODO: doc includes, intro, and what we use from each?
-#define _GNU_SOURCE // TODO: Why?
+// By defining the `_GNU_SOURCE` feature test macro we get access to a safe
+// `basename(3)` implementation from `string.h`.
+#define _GNU_SOURCE
+
+// Include memory allocation and process control functions and macros like
+// `exit(3)`, `atexit(3)`, `calloc(3)`, and `EXIT_SUCCESS`.
 #include <stdlib.h>
+
+// Include POSIX operating system functions like
+// `fork(3)`, `execvp(3)`, and `sleep(3)`.
 #include <unistd.h>
+
+// Include macros giving use access to the boolean types `true` and `false`.
 #include <stdbool.h>
+
+// Include string operation functions like
+// `strncmp(3)`, `strsep(3)`, `strcpy(3)`, and `strnlen(3)`.
 #include <string.h>
-#include <signal.h>
+
+// Include core buffered input and output functions and macros like
+// `fprintf(3)`, `snprintf(3)`, `fopen(3)`, `fclose(3)`, and `FILE`.
 #include <stdio.h>
+
+// Include functions and structures for working with directory entries like
+// `scandir(3)` and `struct dirent`. 
 #include <dirent.h>
+
+// Include date and time handling functions like `time(3)`.
 #include <time.h>
+
+// Include declaration of the global `errno` and matching symbolic constants
+// like `EAGAIN`.
 #include <errno.h>
+
+// Include pre-defined values to be used with `exit(3)` like
+// `EX_USAGE` and `EX_OSFILE`.
 #include <sysexits.h>
+
+
+// Include macros for handling variable arguments like 
+// `va_start(3)`, `va_end(3)` and `va_list`.
 #include <stdarg.h>
-#include <sys/types.h>
+
+// Include functions and constants for logging to the system log like
+// `openlog(3)`, `closelog(3)`, `vsyslog(3)`, `LOG_DAEMON`, `LOG_PID`,
+// `LOG_EMERG`, and `LOG_WARNING`.
 #include <sys/syslog.h>
+
+// Include functions and symbolic constants for waiting for children like
+// `waitpid(3)`, and `WNOHANG`.
+// This header implicitly includes `signal.h` which gives us signal
+// handling functions, constants, and types like `kill(3)`, `sigemptyset(3)`,
+// `sigprocmask(3)`, `sigaddset(3)`, `SIGCHLD`, `SIGHUP` and `sigset_t`.
 #include <sys/wait.h>
 
 // Include constants, type definitions, and function prototypes from
@@ -27,7 +65,8 @@
 #include "going.h"
 
 
-// A pointer to the head of the linked list of children we supervise.
+// We need a global pointer to the head of the linked list of children we're
+// going to supervise.
 static child_t *head_ch = NULL;
 
 
