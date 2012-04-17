@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
   // All quarantined (a newly initialized child structure is quarantined by
   // default) children is spawned for the first time.
-  spawn_quarantined_children();
+  spawn_unquarantined_children();
 
   // We launch our main loop which waits for signals and handles them
   // until it receives a terminating signal and promptly exits this process.
@@ -136,6 +136,7 @@ inline char *parse_args(int argc, char **argv) {
 // Configuration
 // -------------
 
+// ### Parse configuration directory
 // Reads configuration files from the directory given and adds/removes
 // elements to a linked list of children accordingly.
 void parse_confdir(const char *dir) {
@@ -163,6 +164,7 @@ void parse_confdir(const char *dir) {
   free(dlist);
 }
 
+// ### Add unseen children
 // Iterates over its given list of configuration files and adds any unseen
 // children to our global linked list.
 void add_new_children(const char *dir, struct dirent **dlist, int dn) {
@@ -223,6 +225,7 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
   }
 }
 
+// ### Remove obselete children
 // Iterates over the global linked list of children and checks that
 // each is still present in the given list of configuration files. Those
 // without a corresponding configuration file is removed form the linked
@@ -260,6 +263,7 @@ void remove_old_children(struct dirent **dlist, int dn) {
   }
 }
 
+// ### Parse a configuration file
 // Parses the given configuration file into the given child structure.
 // Returns true if the format of the configuration file was valid and
 // false otherwise.
@@ -271,7 +275,7 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
   ch->next = NULL;
 
   // We set the child as quarantined so that we can use the
-  // `spawn_quarantined_children()` function to bring it up.
+  // `spawn_unquarantined_children()` function to bring it up.
   ch->quarantined = true;
 
   // Since the name member of our child structure has a constant size we have
@@ -325,23 +329,29 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
 // Execution of children
 // ---------------------
 
-void spawn_quarantined_children(void) {
+// ### Spawn unquarantined children
+// TODO: doc me
+void spawn_unquarantined_children(void) {
   child_t *ch;
 
   for (ch = head_ch; ch != NULL; ch = ch->next) {
-    if (ch->quarantined && safe_to_respaw_quarantined(ch)) {
+    if (ch->quarantined && can_be_unquarantined(ch)) {
       spawn_child(ch);
     }
   }
 }
 
-bool safe_to_respaw_quarantined(child_t *ch) {
+// ### Is a child unquarantined?
+// TODO: doc me
+bool can_be_unquarantined(child_t *ch) {
   time_t now = time(NULL);
 
   return !(ch->up_at > 0 && now >= ch->up_at
            && now - ch->up_at < QUARANTINE_TIME.tv_sec);
 }
 
+// ### Respawn terminated children
+// TODO: doc me
 bool respawn_terminated_children(void) {
   child_t *ch;
   int status;
@@ -371,6 +381,7 @@ bool respawn_terminated_children(void) {
   return success;
 }
 
+// ### Spawn a child
 // Spawns the command line of the given child by forking and execing
 // a child process of the parent `going` process.
 void spawn_child(child_t *ch) {
@@ -475,6 +486,8 @@ void spawn_child(child_t *ch) {
 // Signal handling
 // ---------------
 
+// ### Block handled signals
+// TODO: doc me
 inline void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
   sigaddset(block_mask, SIGCHLD);
@@ -484,13 +497,15 @@ inline void block_signals(sigset_t *block_mask) {
   sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
+// ### Signal handling loop
+// TODO: doc me
 void wait_forever(sigset_t *block_mask, const char *confdir) {
   struct timespec *timeout = NULL;
 
   while (true) switch(sigtimedwait(block_mask, NULL, timeout)) {
     case -1:
       if (errno == EAGAIN) {
-        spawn_quarantined_children();
+        spawn_unquarantined_children();
         timeout = NULL;
       }
       break;
@@ -498,11 +513,11 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       if (!respawn_terminated_children()) {
         timeout = &QUARANTINE_TIME;
       }
-      spawn_quarantined_children();
+      spawn_unquarantined_children();
       break;
     case SIGHUP:
       parse_confdir(confdir);
-      spawn_quarantined_children();
+      spawn_unquarantined_children();
       break;
     default:
       // TODO: Decide if we should re-raise terminating signals.
@@ -517,6 +532,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
 // Children handling
 // -----------------
 
+// ### Tail child
 // Returns a pointer to the tail child of the global linked list
 // of children. Returns null if the head child is null.
 child_t *get_tail_child(void) {
@@ -527,6 +543,7 @@ child_t *get_tail_child(void) {
   return tail_ch;
 }
 
+// ### Existence of child
 // Check whether our liked list of children contains the given child
 // identified by name.
 inline bool has_child(char *name) {
@@ -538,6 +555,7 @@ inline bool has_child(char *name) {
   return false;
 }
 
+// ### Existence of config
 // Check whether a given child identified by name still is present in a
 // directory listing of our configuration directory.
 inline bool child_active(char *name, struct dirent **dlist, int dn) {
@@ -549,6 +567,7 @@ inline bool child_active(char *name, struct dirent **dlist, int dn) {
   return false;
 }
 
+// ### Terminate child
 // Terminate a given child by sending it the `SIGTERM` signal.
 // TODO: Should we wait on the child to exit, and send it a
 // SIGKILL signal if it fails to obey?
@@ -556,6 +575,7 @@ void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
 
+// ### Remove all children
 // Free the memory consumed by our linked list of children.
 void cleanup_children(void) {
   child_t *tmp_ch;
@@ -572,6 +592,7 @@ void cleanup_children(void) {
   }
 }
 
+// ### Free memory for a child
 // Free the memory consumed by the given child.
 inline void cleanup_child(child_t *ch) {
   free(ch);
@@ -581,11 +602,13 @@ inline void cleanup_child(child_t *ch) {
 // Utility functions
 // -----------------
 
+// ### String content
 // A simple inline function to determine whether a string has any content.
 inline bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
 
+// ### Safe string copy
 // A safe inline function for copying a string.
 // Returns true if the source string fits within the given size or false
 // if it was truncated according to the size argument.
@@ -596,7 +619,8 @@ inline bool safe_strcpy(char *dst, const char *src, size_t size) {
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
 
-// A wrapper arround `malloc(3)` which blocks until we get a pointer to the
+// ### Safe heap allocation
+// A wrapper arround `calloc(3)` which blocks until we get a pointer to the
 // requested memory on the heap.
 void *safe_malloc(size_t size)
 {
@@ -614,12 +638,14 @@ void *safe_malloc(size_t size)
   return mp;
 }
 
+// ### Default directory file selector
 // A filter function used with `scandir(3)` which returns true for
 // all files in a directory excluding `.` and `..`.
 int only_files_selector(const struct dirent *d) {
   return strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0;
 }
 
+// ### System logger
 // A `syslog(3)` convenience wrapper which takes a priority level, a
 // log message format, and a variable number of arguments to the message
 // format.
