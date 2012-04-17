@@ -88,7 +88,7 @@ TODO
   stdinn/out/err.
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
-* Man page.
+* Man pages for daemon: going(1) and config format: going(5).
 * Github project page (possibly using [shocco][]).
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
