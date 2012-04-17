@@ -61,10 +61,8 @@ typedef struct going_child {
 
 // Defining prototypes of our functions makes layout out the program
 // in a literate style possible.
-//
-// TODO: What about static functions?
 
-// Argument parsing.
+// Argument parsing
 char *parse_args(int argc, char **argv);
 
 // Configuration
@@ -83,7 +81,7 @@ void spawn_child(child_t *ch);
 void block_signals(sigset_t *block_mask);
 void wait_forever(sigset_t *block_mask, const char *confdir);
 
-// Children handling.
+// Children handling
 child_t *get_tail_child(void);
 bool has_child(char *name);
 bool child_active(char *name, struct dirent **dlist, int dn);
