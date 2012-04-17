@@ -22,6 +22,8 @@
 #include <sys/syslog.h>
 #include <sys/wait.h>
 
+// Include constants, type definitions, and function prototypes from
+// the [`going.h` header file](going.h.html).
 #include "going.h"
 
 

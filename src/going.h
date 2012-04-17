@@ -1,5 +1,7 @@
-// Constants and globals
-// ---------------------
+// Header file for the [`going.c` source file](going.c.html).
+
+// Constants
+// ---------
 
 // `syslog(3)` needs an identity.
 #define IDENT "going"
@@ -35,6 +37,9 @@ static struct timespec QUARANTINE_TIME = {30, 0};
 #define EMERG_SLEEP 1
 
 
+// Types
+// -----
+
 // The `child_t` type holds information for a child under supervision. We
 // identify it based on the name of its configuration file, parse its
 // command line including arguments, track its process id, the last time
@@ -49,6 +54,7 @@ typedef struct going_child {
   bool quarantined;
   struct going_child *next;
 } child_t;
+
 
 // Prototypes
 // ----------
