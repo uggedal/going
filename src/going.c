@@ -17,7 +17,7 @@
 // `fork(3)`, `execvp(3)`, and `sleep(3)`.
 #include <unistd.h>
 
-// Include macros giving use access to the boolean types `true` and `false`.
+// Include macros giving us access to the boolean types `true` and `false`.
 #include <stdbool.h>
 
 // Include string operation functions like
@@ -76,18 +76,32 @@ static child_t *head_ch = NULL;
 int main(int argc, char **argv) {
   sigset_t block_mask;
 
+  // First we parse the command line arguments to check for a non-standard
+  // configuration directory. If no such argument was given we get the
+  // default `/etc/going.d`. If an invalid command line flag was given
+  // the parse function will exit this process abnormally.
   const char *confdir = parse_args(argc, argv);
 
+  // We setup our cleanup function as an exit handler which will be
+  // called at normal process termination.
   atexit(cleanup_children);
 
+  // The signals we're going to handle in our main loop is blocked.
   block_signals(&block_mask);
 
+  // We parse configuration files in the configuration directory
+  // into our global linked list of child structures.
   parse_confdir(confdir);
 
+  // All quarantined (a newly initialized child structure is quarantined by
+  // default) children is spawned for the first time.
   spawn_quarantined_children();
 
+  // We launch our main loop which waits for signals and handles them
+  // until it receives a terminating signal and promptly exits this process.
   wait_forever(&block_mask, confdir);
 
+  // This return will never be reached, but it can't hurt.
   return EXIT_SUCCESS;
 }
 
@@ -95,15 +109,25 @@ int main(int argc, char **argv) {
 // Argument parsing
 // ----------------
 
+// Returns the default configuration directory or a non-standard location
+// if the configuration directory command line flag is found.
 inline char *parse_args(int argc, char **argv) {
+
+  // If we only have on argument, the name of the binary for this source,
+  // we simply return the default configuration directory.
   if (argc == 1) {
     return CONFIG_DIR;
   }
 
-  if (argc == 3 && strcmp("-d", argv[1]) == 0 && str_not_empty(argv[2])) {
+  // If we have two extra arguments, the first matching our  configuration
+  // directory flag and the second beeing non-empty, we return the second
+  // value as the configuration directory.
+  if (argc == 3 && strcmp(CMD_FLAG_CONFDIR, argv[1]) == 0 && str_not_empty(argv[2])) {
     return argv[2];
   }
 
+  // The user has given and illegal number or type of arguments. The program
+  // usage is printed to the standard error stream and we exit abnormally.
   fprintf(stderr, USAGE);
   exit(EX_USAGE);
 }
@@ -482,6 +506,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       break;
     default:
       // TODO: Decide if we should re-raise terminating signals.
+      //       - If we exit abnormally we should call cleanup_child() here.
       // TODO: Kill and reap children if we have left the SIGCHLD loop.
       //       - What about children respawning too fast (in sleep mode)?
       exit(EXIT_FAILURE);

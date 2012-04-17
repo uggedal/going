@@ -9,10 +9,13 @@
 // A semantic version.
 #define VERSION "0.1.0-beta"
 
+// The command line flag used to change the default configuration directory.
+#define CMD_FLAG_CONFDIR "-d"
+
 // Short usage instructions if you fail at typing.
 #define USAGE \
   "going " VERSION " (c) 2012 Eivind Uggedal\n" \
-  "usage: going [-d conf.d]\n"
+  "usage: going [" CMD_FLAG_CONFDIR " conf.d]\n"
 
 // The sizes of our childrens' members. By using constant sizes we only
 // have to `malloc(3)` our entire child structure once per child.
