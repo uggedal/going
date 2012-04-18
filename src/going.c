@@ -122,7 +122,8 @@ inline char *parse_args(int argc, char **argv) {
   // If we have two extra arguments, the first matching our  configuration
   // directory flag and the second beeing non-empty, we return the second
   // value as the configuration directory.
-  if (argc == 3 && strcmp(CMD_FLAG_CONFDIR, argv[1]) == 0 && str_not_empty(argv[2])) {
+  if (argc == 3 && strcmp(CMD_FLAG_CONFDIR, argv[1]) == 0
+      && str_not_empty(argv[2])) {
     return argv[2];
   }
 
