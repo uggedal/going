@@ -129,6 +129,7 @@ TODO
 * Create going information utility:
   - Uptime of children.
   - More statistics either from /proc or getrusage().
+  - Color output where supported (look into [foreman example][colors]).
 
 ### Other
 
@@ -149,3 +150,4 @@ TODO
 [signalfd]: http://www.kernel.org/doc/man-pages/online/pages/man2/signalfd.2.html
 [race]: http://www.linuxprogrammingblog.com/code-examples/using-pselect-to-avoid-a-signal-race
 [select_tut]: http://www.kernel.org/doc/man-pages/online/pages/man2/select_tut.2.html
+[colors]: http://wynnnetherland.com/journal/a-stylesheet-author-s-guide-to-terminal-colors
