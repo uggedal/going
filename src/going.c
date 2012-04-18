@@ -332,7 +332,11 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
 // ---------------------
 
 // ### Spawn unquarantined children
-// TODO: doc me
+// Iterates over all our children and spawn them if they currently are
+// quarantined and safely can be unquarantined.
+// This function can also spawn children for the first time since all
+// child structures are initialized as quarantined with an uptime stamp
+// of epoch.
 void spawn_unquarantined_children(void) {
   child_t *ch;
 
