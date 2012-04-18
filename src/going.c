@@ -335,8 +335,8 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
 // Iterates over all our children and spawn them if they currently are
 // quarantined and safely can be unquarantined.
 // This function can also spawn children for the first time since all
-// child structures are initialized as quarantined with an uptime stamp
-// of epoch.
+// child structures are initialized as quarantined with a last started
+// timestamp of epoch.
 void spawn_unquarantined_children(void) {
   child_t *ch;
 
@@ -347,13 +347,18 @@ void spawn_unquarantined_children(void) {
   }
 }
 
-// ### Is a child unquarantined?
-// TODO: doc me
+// ### Safe to unquarantine a child?
+// Checks whether a given child can be unquarantined or not.
 bool can_be_unquarantined(child_t *ch) {
   time_t now = time(NULL);
 
-  return !(ch->up_at > 0 && now >= ch->up_at
-           && now - ch->up_at < QUARANTINE_TIME.tv_sec);
+  // A child can be unquarantined if it:
+  //
+  //   * has never been spawned,
+  //   * or was last spawned more than equal to the value of
+  //     `QUARANTINE_TIME`.
+  return not_been_spawned(ch) ||
+         !(now >= ch->up_at && now - ch->up_at < QUARANTINE_TIME.tv_sec);
 }
 
 // ### Respawn terminated children
@@ -571,6 +576,14 @@ inline bool child_active(char *name, struct dirent **dlist, int dn) {
     }
   }
   return false;
+}
+
+// ### Non-spawned child
+// Check whether a child has been spawned before.
+inline bool not_been_spawned(child_t *ch) {
+  // A child has never been spawned if it has a `up_at` timestamp
+  // equal to epoch (zero).
+  return ch->up_at == 0;
 }
 
 // ### Terminate child

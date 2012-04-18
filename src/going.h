@@ -88,6 +88,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir);
 child_t *get_tail_child(void);
 bool has_child(char *name);
 bool child_active(char *name, struct dirent **dlist, int dn);
+bool not_been_spawned(child_t *ch);
 void kill_child(child_t *ch);
 void cleanup_children(void);
 void cleanup_child(child_t *ch);
