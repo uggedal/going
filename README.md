@@ -88,8 +88,14 @@ TODO
   stdinn/out/err.
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
-* Man pages for daemon: going(1) and config format: going(5).
-* Github project page (possibly using [shocco][]).
+* Literate programming:
+  - Look into using solarized color scheme for pygments.
+  - Link references to library functions in section 3 to online man pages
+    on kernel.org.
+  - Link to `going` man pages in introduction.
+* Man pages for daemon: going(1) and config format: going(5) using
+  [ronn][].
+  - Hook generation up to `make doc` target.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
@@ -134,6 +140,7 @@ TODO
 
 
 [shocco]: http://rtomayko.github.com/shocco/
+[ronn]: https://github.com/rtomayko/ronn
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html
