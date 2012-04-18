@@ -322,6 +322,8 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
       }
     }
   }
+  // If no lines in the configuration file contained a valid command line we
+  // return with an invalid status.
   return false;
 }
 
