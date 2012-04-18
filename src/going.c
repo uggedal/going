@@ -349,41 +349,41 @@ void spawn_unquarantined_children(void) {
 }
 
 // ### Safe to unquarantine a child?
-// Checks whether a given child can be unquarantined or not.
+// Checks whether we can stop quarantining a given child.
 bool can_be_unquarantined(child_t *ch) {
-  time_t now = time(NULL);
-
   // A child can be unquarantined if it:
   //
   //   * has never been spawned,
-  //   * or was last spawned more than equal to the value of
-  //     `QUARANTINE_TIME`.
-  return not_been_spawned(ch) ||
-         !(now >= ch->up_at && now - ch->up_at < QUARANTINE_TIME.tv_sec);
+  //   * or was last spawned more than or equal to the value of
+  //     `QUARANTINE_PERIOD`.
+  return !child_recently_spawned(ch, QUARANTINE_PERIOD.tv_sec);
 }
 
 // ### Respawn terminated children
-// TODO: doc me
+// Respawns all terminated children. This function is called
+// when we get a `SIGCHLD` signal.
 bool respawn_terminated_children(void) {
   child_t *ch;
   int status;
   pid_t ch_pid;
   bool success = true;
-  time_t now = time(NULL);
 
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
+
     for (ch = head_ch; ch; ch = ch->next) {
+
       if (ch_pid == ch->pid) {
-        if (ch->up_at > 0
-            && now >= ch->up_at
-            && now - ch->up_at < QUARANTINE_LIMIT) {
+        time_t now = time(NULL);
+
+        if (child_recently_spawned(ch, QUARANTINE_TRIGGER)) {
           slog(LOG_WARNING, "%s terminated after: %ds (limit: %ds) and " \
               "will be quarantined for %ds", ch->name, now - ch->up_at,
-              QUARANTINE_LIMIT, QUARANTINE_TIME.tv_sec);
+              QUARANTINE_TRIGGER, QUARANTINE_PERIOD.tv_sec);
           ch->quarantined = true;
           success = false;
           continue;
         }
+
         slog(LOG_WARNING, "%s terminated after: %ds",
              ch->name, now - ch->up_at);
         spawn_child(ch);
@@ -523,7 +523,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       break;
     case SIGCHLD:
       if (!respawn_terminated_children()) {
-        timeout = &QUARANTINE_TIME;
+        timeout = &QUARANTINE_PERIOD;
       }
       spawn_unquarantined_children();
       break;
@@ -579,12 +579,19 @@ inline bool child_active(char *name, struct dirent **dlist, int dn) {
   return false;
 }
 
-// ### Non-spawned child
-// Check whether a child has been spawned before.
-inline bool not_been_spawned(child_t *ch) {
-  // A child has never been spawned if it has a `up_at` timestamp
-  // equal to epoch (zero).
-  return ch->up_at == 0;
+// ### Child spawned recently
+// Check whether a child was last spawned less than the given number
+// of seconds ago.
+bool child_recently_spawned(child_t *ch, int seconds_ago) {
+  time_t now = time(NULL);
+
+  // We have to check that:
+  //
+  //  * the child has been spawned before (indicated by a positive `up_at`
+  //    timestamp since its set to zero when a child is initialized),
+  //  * and that the difference between the current time and the time
+  //    the child was spawned is less than the given number of seconds.
+  return ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < seconds_ago;
 }
 
 // ### Terminate child

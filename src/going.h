@@ -32,8 +32,8 @@
 
 // Bad children which terminates before the limit we set here should be
 // quarantined accordingly.
-#define	QUARANTINE_LIMIT 5
-static struct timespec QUARANTINE_TIME = {30, 0};
+#define	QUARANTINE_TRIGGER 5
+static struct timespec QUARANTINE_PERIOD = {30, 0};
 
 // If our system fails at giving us resources for `malloc(3)` or `fork(3)`
 // we'll have to wait a little.
@@ -88,7 +88,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir);
 child_t *get_tail_child(void);
 bool has_child(char *name);
 bool child_active(char *name, struct dirent **dlist, int dn);
-bool not_been_spawned(child_t *ch);
+bool child_recently_spawned(child_t *ch, int seconds_ago);
 void kill_child(child_t *ch);
 void cleanup_children(void);
 void cleanup_child(child_t *ch);
