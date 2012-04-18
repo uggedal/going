@@ -368,10 +368,17 @@ bool respawn_terminated_children(void) {
   pid_t ch_pid;
   bool success = true;
 
+  // We retrieve information about terminated child processes
+  // using `waitpid(3)`. It's possible that we only get one `SIGCHLD`
+  // signal delivered from the kernel even though more than one child
+  // terminated. We therefore loop until we've gotten the process id of
+  // all terminated children. We use the `WNOHANG` flag so that we don't
+  // block the thread until status of terminated children is available.
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
 
+    // We iterate over our global linked list of children to find
+    // the child structure of the exited child process.
     for (ch = head_ch; ch; ch = ch->next) {
-
       if (ch_pid == ch->pid) {
         time_t now = time(NULL);
 
