@@ -1,5 +1,6 @@
 // TODO: Intro here. C99, Linux spcific, SIGCHLD based, runner, not
 //       monitor, bla, bla.
+
 // TODO: Connect the paragraphs so that it reads well.
 
 // Dependencies
@@ -180,11 +181,13 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
 
   for (int i = dn - 1; i >= 0; i--) {
 
+    // TODO: What about updating existing configurations? Either:
+    //
+    //   * update child struct, kill, wait and respawn, or
+    //   * update struct for quarantined childs only.
+
     // If we already have a child by the name based on this configuration
     // file we simply skip checking it.
-    // TODO: What about updating existing configurations? Either:
-    //       - Update child struct, kill, wait and respawn or
-    //       - Update struct for quarantined childs only
     if (has_child(dlist[i]->d_name)) {
       continue;
     }
@@ -476,6 +479,7 @@ void spawn_child(child_t *ch) {
       sigprocmask(SIG_SETMASK, &empty_mask, NULL);
 
       // TODO: Should file descriptors 0, 1, 2 be closed or duped?
+
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
 
@@ -551,9 +555,10 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       break;
     default:
       // TODO: Decide if we should re-raise terminating signals.
-      //       - If we exit abnormally we should call cleanup_child() here.
+      //   * If we exit abnormally we should call cleanup_child() here.
+
       // TODO: Kill and reap children if we have left the SIGCHLD loop.
-      //       - What about children respawning too fast (in sleep mode)?
+      //   * What about children respawning too fast (in sleep mode)?
       exit(EXIT_FAILURE);
   }
 }
@@ -613,9 +618,10 @@ bool child_recently_spawned(child_t *ch, int seconds_ago) {
 }
 
 // ### Terminate child
-// Terminate a given child by sending it the `SIGTERM` signal.
 // TODO: Should we wait on the child to exit, and send it a
 // SIGKILL signal if it fails to obey?
+
+// Terminate a given child by sending it the `SIGTERM` signal.
 void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
 }
