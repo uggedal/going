@@ -521,13 +521,34 @@ void spawn_child(child_t *ch) {
 // ---------------
 
 // ### Block handled signals
-// TODO: doc me
+// For handling signals synchronously in our main loop with `sigtimedwait(3)`
+// we need to set the `going` process' signal mask (a set of signals whose
+// delivery from the kernel is blocked).
 inline void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
+
+  // The `SIGCHLD` signal is delivered if a child process terminates. The
+  // entire `going` program is designed arround handling this signal and
+  // respawning the terminated child process.
   sigaddset(block_mask, SIGCHLD);
+
+  // The `SIGTERM` signal is the standard signal for terminating a process
+  // and the default signal sent by `kill(1)`. We block it so that we can
+  // handle it by cleaning up our main and child processes.
   sigaddset(block_mask, SIGTERM);
+
+
+  // The `SIGINT` signal is sent when the user sends an terminal interrupt
+  // (Ctrl-C). While `going` is not designed to be run from a controlling
+  // terminal it's useful to handle this signal when testing/debugging.
   sigaddset(block_mask, SIGINT);
+
+  // The `SIGHUP` signal can be used for reloading a daemon's configuration.
+  // We block it so that we can do exactly that.
   sigaddset(block_mask, SIGHUP);
+
+  // After building a signal set of those signals we're going to handle in
+  // our main loop we set it as the signal process mask (blocked signals).
   sigprocmask(SIG_BLOCK, block_mask, NULL);
 }
 
