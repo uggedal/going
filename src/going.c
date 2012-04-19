@@ -634,13 +634,10 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       break;
 
     // We've received a terminating signal that we can handle. We should
-    // clean up our main and child processes before exiting by resending
-    // the originating signal to ourself.
+    // clean up our main and child processes before exiting.
     default:
-
-      // TODO: Call cleanup_child() and re-raise terminating signal.
-
-      // TODO: Kill and reap unquarantined children.
+      kill_children();
+      cleanup_children();
       exit(EXIT_FAILURE);
   }
 }
@@ -697,6 +694,14 @@ bool child_recently_spawned(child_t *ch, int seconds_ago) {
   //  * and that the difference between the current time and the time
   //    the child was spawned is less than the given number of seconds.
   return ch->up_at > 0 && now >= ch->up_at && now - ch->up_at < seconds_ago;
+}
+
+// ### Kill children
+// Send all children a termination signal.
+void kill_children(void) {
+  for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
+    kill_child(ch);
+  }
 }
 
 // ### Terminate child

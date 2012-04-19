@@ -88,6 +88,7 @@ child_t *get_tail_child(void);
 bool has_child(char *name);
 bool child_active(char *name, struct dirent **dlist, int dn);
 bool child_recently_spawned(child_t *ch, int seconds_ago);
+void kill_children(void);
 void kill_child(child_t *ch);
 void cleanup_children(void);
 void cleanup_child(child_t *ch);
