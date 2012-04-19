@@ -218,8 +218,8 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
     //   * update child struct, kill, wait and respawn, or
     //   * update struct for quarantined childs only.
 
-    // If we already have a child by the name based on this configuration
-    // file we simply skip checking it.
+    // We only check this configuration file if we don't have a child
+    // with the same name.
     if (!has_child(dlist[i]->d_name)) {
 
       // Create a full path to this configuration file.
@@ -259,7 +259,7 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
         // opened configuration file.
         fclose(fp);
 
-      // If we're unable to open the configuration file for reading we
+      // If we were unable to open the configuration file for reading we
       // skip this configuration.
       } else {
         slog(LOG_ERR, "Can't read %s: %m", path);
