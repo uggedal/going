@@ -705,9 +705,6 @@ void kill_children(void) {
 }
 
 // ### Terminate child
-// TODO: Should we wait on the child to exit, and send it a
-// SIGKILL signal if it fails to obey?
-
 // Terminate a given child by sending it the `SIGTERM` signal.
 void kill_child(child_t *ch) {
   kill(ch->pid, SIGTERM);
