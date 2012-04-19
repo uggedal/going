@@ -18,8 +18,16 @@ install: all
 doc:
 	@docco src/going.[ch]
 
+publish: doc
+	git checkout -q gh-pages
+	cp doc/* .
+	git add *.html *.css
+	git commit -m "Documentation rebuild."
+	git push origin gh-pages
+	git checkout -q master
+
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
 	@cppcheck --enable=all src/going.c
-	@valgrind --leak-check=full --show-reachable=yes --time-stamp=yes --stacks=yes \
+	@valgrind --leak-check=full --show-reachable=yes --time-stamp=yes \
 		./going -d test/going.d
