@@ -62,7 +62,7 @@ typedef struct going_child {
 // Prototypes
 // ----------
 
-// Defining prototypes of our functions makes layout out the program
+// Defining prototypes of our functions makes laying out the program
 // in a literate style possible.
 
 // Argument parsing
