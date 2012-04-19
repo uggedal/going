@@ -21,4 +21,5 @@ doc:
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
 	@cppcheck --enable=all src/going.c
-	@valgrind --leak-check=full --show-reachable=yes ./going -d test/going.d
+	@valgrind --leak-check=full --show-reachable=yes --time-stamp=yes --stacks=yes \
+		./going -d test/going.d
