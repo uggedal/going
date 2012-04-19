@@ -371,14 +371,14 @@ bool respawn_terminated_children(void) {
   child_t *ch;
   int status;
   pid_t ch_pid;
-  bool success = true;
+  bool any_quarantined = true;
 
   // We retrieve information about terminated child processes
   // using `waitpid(3)`. It's possible that we only get one `SIGCHLD`
   // signal delivered from the kernel even though more than one child
   // terminated. We therefore loop until we've gotten the process id of
   // all terminated children. We use the `WNOHANG` flag so that we don't
-  // block the thread until status of terminated children is available.
+  // block the thread until status of any terminated children is available.
   while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
 
     // We iterate over our global linked list of children to find
@@ -387,22 +387,31 @@ bool respawn_terminated_children(void) {
       if (ch_pid == ch->pid) {
         time_t now = time(NULL);
 
+        // If the child lived shorter than the value of `QUARANTINE_TRIGGER`
+        // we mark the child as quarantined and log its misbehavior. The
+        // child is not respawned.
+        // In addition the return value for this function is set to be falsy
+        // so that the caller can know that one or more children was
+        // quarantined and not respawned.
         if (child_recently_spawned(ch, QUARANTINE_TRIGGER)) {
           slog(LOG_WARNING, "%s terminated after: %ds (limit: %ds) and " \
               "will be quarantined for %ds", ch->name, now - ch->up_at,
               QUARANTINE_TRIGGER, QUARANTINE_PERIOD.tv_sec);
           ch->quarantined = true;
-          success = false;
-          continue;
-        }
 
-        slog(LOG_WARNING, "%s terminated after: %ds",
-             ch->name, now - ch->up_at);
-        spawn_child(ch);
+          any_quarantined = false;
+
+        // If the child lived longh enough to not be quarantined we log its
+        // termination and respawn it.
+        } else {
+          slog(LOG_WARNING, "%s terminated after: %ds",
+               ch->name, now - ch->up_at);
+          spawn_child(ch);
+        }
       }
     }
   }
-  return success;
+  return any_quarantined;
 }
 
 // ### Spawn a child
