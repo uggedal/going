@@ -103,6 +103,8 @@ TODO
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
+* Create Arch Linux package.
+* Create Debian and RPM package (possibly using RPM).
 
 ### 1.1.0
 
