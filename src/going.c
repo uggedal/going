@@ -553,33 +553,63 @@ inline void block_signals(sigset_t *block_mask) {
 }
 
 // ### Signal handling loop
-// TODO: doc me
+// Tha main loop of the `going` process waits for the kernel to deliver
+// signals we've blocked with our process mask. Each signal is
+// accepted synchronously.
 void wait_forever(sigset_t *block_mask, const char *confdir) {
   struct timespec *timeout = NULL;
 
+  // We loop until the process explicitly exits or the kernel decides
+  // to terminate it. In each iteration we wait for a signal in our
+  // process mask to arrive.
   while (true) switch(sigtimedwait(block_mask, NULL, timeout)) {
+
+    // If no signal was delivered within the given timeout period we
+    // get an `EAGAIN` error.
     case -1:
       if (errno == EAGAIN) {
+        // This means that we've previously set a timeout of
+        // `QUARANTINE_PERIOD` so that we could wake up and unquarantine
+        // and spawn quarantined children.
         spawn_unquarantined_children();
+        // Since all quarantined children can be unquarantined and spawned
+        // after waiting `QUARANTINE_PERIOD` we don't have to wake up
+        // again before we get a new signal.
         timeout = NULL;
       }
       break;
+
+    // When the `SIGCHLD` signal is delivered one (or possible several) of
+    // our child processes has terminated.
     case SIGCHLD:
+      // In response to the termination of children we respawn them. The
+      // `respawn_terminated_children()` function returns `false` if one
+      // or more of the children which it tried to respawn was quarantined.
       if (!respawn_terminated_children()) {
+        // If we've quarantined one or more children we have to wake up
+        // after `QUARANTINE_PERIOD` the next loop iteration and try to
+        // spawn them then.
         timeout = &QUARANTINE_PERIOD;
       }
-      spawn_unquarantined_children();
       break;
+
+    // A `SIGHUP` signal indicates that we've been requested to reload
+    // our configuration of child processes to supervise.
     case SIGHUP:
       parse_confdir(confdir);
+      // If we've received new children to supervise those are spawned for
+      // their first time.
       spawn_unquarantined_children();
       break;
-    default:
-      // TODO: Decide if we should re-raise terminating signals.
-      //   * If we exit abnormally we should call cleanup_child() here.
 
-      // TODO: Kill and reap children if we have left the SIGCHLD loop.
-      //   * What about children respawning too fast (in sleep mode)?
+    // We've received a terminating signal that we can handle. We should
+    // clean up our main and child processes before exiting by resending
+    // the originating signal to ourself.
+    default:
+
+      // TODO: Call cleanup_child() and re-raise terminating signal.
+
+      // TODO: Kill and reap unquarantined children.
       exit(EXIT_FAILURE);
   }
 }
