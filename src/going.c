@@ -401,7 +401,6 @@ void spawn_unquarantined_children(void) {
 // when we get a `SIGCHLD` signal.
 bool respawn_terminated_children(void) {
   child_t *ch;
-  int status;
   pid_t ch_pid;
   bool all_respawned = true;
 
@@ -411,7 +410,7 @@ bool respawn_terminated_children(void) {
   // terminated. We therefore loop until we've gotten the process id of
   // all terminated children. We use the `WNOHANG` flag so that we don't
   // block the thread until status of any terminated children is available.
-  while ((ch_pid = waitpid(-1, &status, WNOHANG)) > 0) {
+  while ((ch_pid = waitpid(-1, NULL, WNOHANG)) > 0) {
 
     // We iterate over our global linked list of children to find
     // the child structure of the exited child process.
