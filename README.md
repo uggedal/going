@@ -97,6 +97,9 @@ TODO
 * Man pages for daemon: going(1) and config format: going(5) using
   [ronn][].
   - Hook generation up to `make doc` target.
+* GH-pages:
+  - create index.html.
+  - possibly append analytics tracking with Makefile.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
@@ -141,7 +144,6 @@ TODO
 * Look into using `scan-build` in debug make target.
 
 
-[shocco]: http://rtomayko.github.com/shocco/
 [ronn]: https://github.com/rtomayko/ronn
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
