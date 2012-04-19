@@ -346,22 +346,19 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
 void spawn_unquarantined_children(void) {
   child_t *ch;
 
+  // Iterate over all children and spawn those which is quarantined
+  // and can be unquarantined.
   for (ch = head_ch; ch != NULL; ch = ch->next) {
-    if (ch->quarantined && can_be_unquarantined(ch)) {
+    // The child can can be unquarantined if it:
+    //
+    //   * has never been spawned,
+    //   * or was last spawned more than or equal to the value of
+    //     `QUARANTINE_PERIOD` ago.
+    if (ch->quarantined
+        && !child_recently_spawned(ch, QUARANTINE_PERIOD.tv_sec)) {
       spawn_child(ch);
     }
   }
-}
-
-// ### Safe to unquarantine a child?
-// Checks whether we can stop quarantining a given child.
-bool can_be_unquarantined(child_t *ch) {
-  // A child can be unquarantined if it:
-  //
-  //   * has never been spawned,
-  //   * or was last spawned more than or equal to the value of
-  //     `QUARANTINE_PERIOD`.
-  return !child_recently_spawned(ch, QUARANTINE_PERIOD.tv_sec);
 }
 
 // ### Respawn terminated children

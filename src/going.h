@@ -76,7 +76,6 @@ bool parse_config(child_t *ch, FILE *fp, char *name);
 
 // Execution of children
 void spawn_unquarantined_children(void);
-bool can_be_unquarantined(child_t *ch);
 bool respawn_terminated_children(void);
 void spawn_child(child_t *ch);
 
