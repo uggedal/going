@@ -20,7 +20,7 @@ doc:
 
 publish: doc
 	git checkout -q gh-pages
-	cp doc/* .
+	cp docs/* .
 	git add *.html *.css
 	git commit -m "Documentation rebuild."
 	git push origin gh-pages
