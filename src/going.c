@@ -154,7 +154,12 @@ void parse_confdir(const char *dir) {
     exit(EX_OSFILE);
   }
 
+  // Add children for the configuration files in the directory listing to the
+  // global linked list if they are not present.
   add_new_children(dir, dlist, dn);
+  //
+  // Remove children from the global linked list and terminate them if they
+  // do not have a configuration file in the directory listing anymore.
   remove_old_children(dlist, dn);
 
   // We have to free the heap allocated memory for the directory list
