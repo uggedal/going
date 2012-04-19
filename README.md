@@ -43,6 +43,9 @@ Reloading configurations for already running processes is currently not
 supported without sending `going` a `TERM` signal which terminates all
 its supervised processes.
 
+All abnormal events will be logged to the daemon syslog facility which
+normally can be inspected in `/var/log/daemon.log`.
+
 
 Goal
 ----
@@ -89,6 +92,7 @@ TODO
 * Document requirements (kernel version) with note about usage of non-portable
   system calls.
 * Literate programming:
+  - Connect the paragraphs so that it reads well.
   - Look into using solarized color scheme for pygments.
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
