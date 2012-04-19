@@ -1,7 +1,39 @@
-// TODO: Intro here. C99, Linux spcific, SIGCHLD based, runner, not
-//       monitor, bla, bla.
-
-// TODO: Connect the paragraphs so that it reads well.
+// Ensure your processes are still `going`. A simple ICS licensed
+// process supervisor.
+//
+// Design
+// ------
+//
+// `going` is designed to spawn child processes and respawn them if they
+// terminate. Through the magic of POSIX a parent process will be
+// delivered a `SIGCHLD` signal when a child process terminates.
+// `going` will therefore sleep until it's notified to wake up so that
+// it can attend to terminated child processes. Frequent polling of the
+// status of a process commonly seen in process monitors is therefore neither
+// needed nor desirable.
+//
+// If a child terminates too fast (within a window of 5 seconds) it will be
+// quarantined for 30 seconds before it will be respawned.
+//
+// All abnormal events will be logged to the daemon facility of the
+// system log (typically found in `/var/log/daemon.log`).
+//
+// `going` is designed to be run from the `inittab(5)` so that `init(8)`
+// can respawn it in the unlikely event that it will terminate.
+//
+// Usage
+// -----
+//
+// See [`going(1)`](going.1.html) and [`going(5)`](going.2.html).
+//
+// Portability
+// -----------
+//
+// `going` is written in C99 specially for GNU/Linux systems. No special care
+// has been taken to make this program protable to other UNIX plattforms.
+// While no Linux-only system calls is currently in use future versions of
+// `going` will likely take advantage of `epoll(7)`, `inotify(7)`, and
+// `signalfd(2)`.
 
 // Dependencies
 // ------------
