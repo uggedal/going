@@ -371,7 +371,7 @@ bool respawn_terminated_children(void) {
   child_t *ch;
   int status;
   pid_t ch_pid;
-  bool any_quarantined = true;
+  bool all_respawned = true;
 
   // We retrieve information about terminated child processes
   // using `waitpid(3)`. It's possible that we only get one `SIGCHLD`
@@ -399,7 +399,7 @@ bool respawn_terminated_children(void) {
               QUARANTINE_TRIGGER, QUARANTINE_PERIOD.tv_sec);
           ch->quarantined = true;
 
-          any_quarantined = false;
+          all_respawned = false;
 
         // If the child lived longh enough to not be quarantined we log its
         // termination and respawn it.
@@ -411,7 +411,7 @@ bool respawn_terminated_children(void) {
       }
     }
   }
-  return any_quarantined;
+  return all_respawned;
 }
 
 // ### Spawn a child
