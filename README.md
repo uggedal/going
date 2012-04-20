@@ -86,8 +86,6 @@ TODO
 
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
-* Document requirements (kernel version) with note about usage of non-portable
-  system calls.
 * Literate programming:
   - Connect the paragraphs so that it reads well.
   - Look into using solarized color scheme for pygments.
@@ -141,6 +139,8 @@ TODO
     requiring no signal handler and global flag set from it. Also
     see *Combining Signal and Data Events* in [select_tut(2)][select_tut]
     for more info of the signal safe I/O multiplexers.
+* Document requirements (kernel version) for new system calls.
+* Upadte portability section.
 
 ### 2.1.0
 
