@@ -99,7 +99,8 @@
 
 
 // We need a global pointer to the head of the linked list of children we're
-// going to supervise.
+// going to supervise. See [`going.h`](going.h.html) for the definition of
+// the `child_t` type.
 static child_t *head_ch = NULL;
 
 
