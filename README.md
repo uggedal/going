@@ -95,13 +95,12 @@ TODO
 * Man pages: 
   - Daemon: going(1).
   - Config format: going(5).
-  - Overview/usage: going(7).
 * GH-pages:
   - Create index.html with:
     - Header.
     - Tagline.
     - Navigation:
-      - going(1), going(5), going(7) (link to html ronn output).
+      - going(1), going(5) (link to html ronn output).
       - Documentation (link to literate source).
       - Collabortion (link to GH repo).
       - LICENSE.

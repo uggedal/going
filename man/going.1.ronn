@@ -35,4 +35,4 @@ Eivind Uggedal <eivind@uggedal.com>
 SEE ALSO
 --------
 
-going(5), going(7), other(1), other(2), other(3)
+going(5), other(1), other(2), other(3)
