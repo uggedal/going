@@ -41,7 +41,7 @@ removed files in `/etc/going.d` with:
 
 Reloading configurations for already running processes is currently not
 supported without sending `going` a `TERM` signal which terminates all
-its supervised processes.
+its supervised processeses.
 
 All abnormal events will be logged to the daemon syslog facility which
 normally can be inspected in `/var/log/daemon.log`.
@@ -126,6 +126,11 @@ TODO
   quarantining them a constant time.
 * Possibly use higher resolution timers for childrens uptime with
   `clock_gettime(CLOCK_MONOTONIC)`.
+* Possibly add support for updating configurations gracefully:
+  - Possible solutions:
+    - Update child struct, kill, wait and respawn.
+    - Update struct for quarantined childs only.
+  - Update usage instructions.
 
 ### 2.0.0
 

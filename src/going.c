@@ -214,11 +214,6 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
 
   for (int i = dn - 1; i >= 0; i--) {
 
-    // TODO: What about updating existing configurations? Either:
-    //
-    //   * update child struct, kill, wait and respawn, or
-    //   * update struct for quarantined childs only.
-
     // We only check this configuration file if we don't have a child
     // with the same name.
     if (!has_child(dlist[i]->d_name)) {
