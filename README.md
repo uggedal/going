@@ -94,12 +94,24 @@ TODO
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
   - Link to `going` man pages in introduction.
-* Man pages for daemon: going(1) and config format: going(5) using
-  [ronn][].
+* Man pages for daemon: going(1), config format: going(5), and overview/usage:
+  going(7) using [ronn][].
   - Hook generation up to `make doc` target.
 * GH-pages:
-  - create index.html.
-  - possibly append analytics tracking with Makefile.
+  - Create index.html with:
+    - Header.
+    - Tagline.
+    - Navigation:
+      - going(1), going(5), going(7) (link to html ronn output).
+      - Documentation (link to literate source).
+      - Collabortion (link to GH repo).
+      - LICENSE.
+    - Download section:
+      - Links to tarball of release tags served by GH.
+      - Link into CHANGES document.
+      - Checksum.
+  - Possibly append analytics tracking with Makefile.
+  - Remove content from README and point to GH-page.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
