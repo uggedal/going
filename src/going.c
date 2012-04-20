@@ -24,7 +24,7 @@
 // Usage
 // -----
 //
-// See [`going(1)`](going.1.html) and [`going(5)`](going.2.html).
+// See [`going(1)`][1] and [`going(5)`][5].
 //
 // Portability
 // -----------
@@ -94,12 +94,12 @@
 #include <sys/wait.h>
 
 // Include constants, type definitions, and function prototypes from
-// the [`going.h` header file](going.h.html).
+// the [`going.h` header file][h].
 #include "going.h"
 
 
 // We need a global pointer to the head of the linked list of children we're
-// going to supervise.
+// going to supervise. See [`going.h`][h] for the definition of `child_t`.
 static child_t *head_ch = NULL;
 
 
@@ -811,3 +811,7 @@ void slog(int priority, char *message, ...)
   // We reset our signal mask to the one in use before we blocked all signals.
   sigprocmask(SIG_SETMASK, &orig_mask, NULL);
 }
+
+// [1]: going.1.html
+// [5]: going.5.html
+// [h]: going.h.html
