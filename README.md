@@ -92,9 +92,10 @@ TODO
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
   - Link to `going` man pages in introduction.
-* Man pages for daemon: going(1), config format: going(5), and overview/usage:
-  going(7) using [ronn][].
-  - Hook generation up to `make doc` target.
+* Man pages: 
+  - Daemon: going(1).
+  - Config format: going(5).
+  - Overview/usage: going(7).
 * GH-pages:
   - Create index.html with:
     - Header.
@@ -163,7 +164,6 @@ TODO
 * Look into using `scan-build` in debug make target.
 
 
-[ronn]: https://github.com/rtomayko/ronn
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html

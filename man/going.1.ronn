@@ -1,0 +1,38 @@
+going(1) -- simple process supervisor
+=====================================
+
+SYNOPSIS
+--------
+
+`going` [`-d` <confdir>]
+
+DESCRIPTION
+-----------
+
+**Going** ...
+
+OPTIONS
+-------
+
+  * `-d`:
+    Description ...
+
+EXAMPLES
+--------
+
+Include here or reference going(5)?
+
+BUGS
+----
+
+Any?
+
+AUTHOR
+------
+
+Eivind Uggedal <eivind@uggedal.com>
+
+SEE ALSO
+--------
+
+going(5), going(7), other(1), other(2), other(3)
