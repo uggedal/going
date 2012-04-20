@@ -20,15 +20,12 @@ doc:
 
 publish: doc
 	rm -rf tmp-pages
-	git fetch -q origin
-	rev=$$(git rev-parse origin/gh-pages)
-	git clone -q -b gh-pages . tmp-pages
+	git clone -q -b gh-pages git@github.com:uggedal/going.git tmp-pages
 	cd tmp-pages && \
-	git reset --hard $$rev && \
 	cp -p ../docs/* . && \
-	git add *.html *.css && \
+	git add -u *.html *.css && \
 	git commit -m "Documentation rebuild." && \
-	git push git@github.com:uggedal/going.git gh-pages
+	git push origin gh-pages
 	rm -rf tmp-pages
 
 debug:
