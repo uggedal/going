@@ -10,20 +10,21 @@ all: src/going
 	@mv src/going .
 
 clean:
-	@rm -f going
+	@rm -f going src/going.[ch].html
 
 install: all
 	@install going $(PREFIX)/sbin
 
 doc:
-	@docco src/going.[ch]
+	@rocco src/going.c && mv src/going{,.c}.html
+	@rocco src/going.h && mv src/going{,.h}.html
 
 publish: doc
 	rm -rf tmp-pages
 	git clone -q -b gh-pages git@github.com:uggedal/going.git tmp-pages
 	cd tmp-pages && \
-	cp -p ../docs/* . && \
-	git add -u *.html *.css && \
+	cp -p ../src/going.[ch].html . && \
+	git add -u going.[ch].html && \
 	git commit -m "Documentation rebuild." && \
 	git push origin gh-pages
 	rm -rf tmp-pages
