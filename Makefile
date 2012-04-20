@@ -19,12 +19,17 @@ doc:
 	@docco src/going.[ch]
 
 publish: doc
-	git checkout -q gh-pages
-	cp docs/* .
-	git add *.html *.css
-	git commit -m "Documentation rebuild."
-	git push origin gh-pages
-	git checkout -q master
+	rm -rf tmp-pages
+	git fetch -q origin
+	rev=$$(git rev-parse origin/gh-pages)
+	git clone -q -b gh-pages . tmp-pages
+	cd tmp-pages && \
+	git reset --hard $$rev && \
+	cp -p ../docs/* . && \
+	git add *.html *.css && \
+	git commit -m "Documentation rebuild." && \
+	git push git@github.com:uggedal/going.git gh-pages
+	rm -rf tmp-pages
 
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
