@@ -1,5 +1,6 @@
 prefix=/usr
 bindir=$(prefix)/sbin
+mandir=$(prefix)/share/man
 
 VERSION=0.1.0
 
@@ -18,9 +19,12 @@ clean:
 install: all
 	@install -d $(DESTDIR)$(bindir)
 	@install going $(DESTDIR)$(bindir)/
+	@install -d $(DESTDIR)$(mandir)/man{1,5}
+	@install -m644 man/going.1 $(DESTDIR)$(mandir)/man1/
+	@install -m644 man/going.5 $(DESTDIR)$(mandir)/man5/
 
 uninstall:
-	@rm -f $(DESTDIR)$(bindir)/going
+	@rm -f $(DESTDIR)$(bindir)/going $(DESTDIR)$(mandir)/man[15]/going.[15]
 
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
