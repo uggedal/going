@@ -1,4 +1,5 @@
 prefix=/usr
+bindir=$(prefix)/sbin
 
 VERSION=0.1.0
 
@@ -15,7 +16,7 @@ clean:
 	@rm -f going src/going.[ch].html man/going.[15].html man/going.[15]
 
 install: all
-	@install going $(DESTDIR)$(prefix)/sbin
+	@install going $(DESTDIR)$(bindir)
 
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
