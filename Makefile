@@ -16,7 +16,8 @@ clean:
 	@rm -f going src/going.[ch].html man/going.[15].html man/going.[15]
 
 install: all
-	@install going $(DESTDIR)$(bindir)
+	@install -d $(DESTDIR)$(bindir)
+	@install going $(DESTDIR)$(bindir)/
 
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
