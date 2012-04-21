@@ -68,11 +68,13 @@ TODO
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
   - Link to `going` man pages in introduction.
+  - Create new stylesheet based on ronn style.
 * Man pages: 
   - Daemon: going(8).
   - Config format: going(5).
 * GH-pages:
   - Create index.html with:
+    - Style based on ronn.
     - Header.
     - Tagline.
     - Navigation:
