@@ -1,4 +1,5 @@
 PREFIX=/usr
+
 VERSION=0.1.0
 
 CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
@@ -14,7 +15,7 @@ clean:
 	@rm -f going src/going.[ch].html man/going.[15].html
 
 install: all
-	@install going $(PREFIX)/sbin
+	@install going $(DESTDIR)$(PREFIX)/sbin
 
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
