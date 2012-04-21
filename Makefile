@@ -19,6 +19,9 @@ install: all
 	@install -d $(DESTDIR)$(bindir)
 	@install going $(DESTDIR)$(bindir)/
 
+uninstall:
+	@rm -f $(DESTDIR)$(bindir)/going
+
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
 	@rocco src/going.h && mv src/going{,.h}.html
