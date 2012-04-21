@@ -24,7 +24,7 @@
 // Usage
 // -----
 //
-// See [`going(1)`](going.1.html) and [`going(5)`](going.2.html).
+// See [`going(8)`](going.8.html) and [`going(5)`](going.5.html).
 //
 // Portability
 // -----------

@@ -20,31 +20,7 @@ The default `/usr` prefix can be changed with:
 Usage
 -----
 
-Add simple configs for starting your services to `/etc/going.d`:
-
-    cat >>/etc/going.d/salt-minion <<EOF
-    cmd=/usr/bin/salt-minion
-    EOF
-
-Add `going` to `/etc/inittab` with the `respawn` action:
-
-    GO:12345:respawn:/usr/sbin/going
-
-Make `init(8)` reload its configuration:
-
-    init q
-
-You can gracefully reload configurations after you've added or
-removed files in `/etc/going.d` with:
-
-    kill -HUP <pid of going>
-
-Reloading configurations for already running processes is currently not
-supported without sending `going` a `TERM` signal which terminates all
-its supervised processeses.
-
-All abnormal events will be logged to the daemon syslog facility which
-normally can be inspected in `/var/log/daemon.log`.
+See [going(8)][8].
 
 
 Goal
@@ -93,14 +69,14 @@ TODO
     on kernel.org.
   - Link to `going` man pages in introduction.
 * Man pages: 
-  - Daemon: going(1).
+  - Daemon: going(8).
   - Config format: going(5).
 * GH-pages:
   - Create index.html with:
     - Header.
     - Tagline.
     - Navigation:
-      - going(1), going(5) (link to html ronn output).
+      - going(8), going(5) (link to html ronn output).
       - Documentation (link to literate source).
       - Collabortion (link to GH repo).
       - LICENSE.
@@ -164,6 +140,7 @@ TODO
 * Look into using `scan-build` in debug make target.
 
 
+[8]: http://uggedal.github.com/going/going.8.html
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html

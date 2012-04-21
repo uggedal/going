@@ -1,0 +1,74 @@
+going(8) -- simple process supervisor
+=====================================
+
+SYNOPSIS
+--------
+
+`going` [`-d` <confdir>]
+
+DESCRIPTION
+-----------
+
+`going` spawns child processes as defined in one or more going(5) style
+configuration files. Child processes are promptly respawned if they terminate.
+
+If a child terminates too fast (within a window of 5 seconds) it will be
+quarantined for 30 seconds before it will be respawned.
+
+`going` is designed to be started from init(8)'s inittab(5) with the
+*respawn* action:
+
+    GO:12345:respawn:/usr/sbin/going
+
+`going` will thus be started when you reload init(8)'s configuration:
+
+    init q
+
+Add simple going(5) style configs for your services to `/etc/going.d`:
+
+    cat >>/etc/going.d/salt-minion <<EOF
+    cmd=/usr/bin/salt-minion
+    EOF
+
+You can gracefully reload configurations after you've added or
+removed files in `/etc/going.d` with:
+
+    kill -HUP <pid of going>
+
+Reloading configurations for already running processes is currently not
+supported without sending `going` a `SIGTERM` signal which terminates all
+its supervised processeses.
+
+All abnormal events will be logged to the daemon syslog facility which
+normally can be inspected in `/var/log/daemon.log`.
+
+OPTIONS
+-------
+
+  * `-d`:
+    Use an alternate configuration directory.
+
+FILES
+-----
+
+  * `/etc/going.d`:
+    The default directory where `going` reads configuration files
+    as specified in going(5).
+
+SIGNALS
+-------
+
+  * `SIGHUP`:
+    Describe ...
+  * `SIGTERM`:
+    Describe ...
+
+AUTHOR
+------
+
+Eivind Uggedal <eivind@uggedal.com>
+
+SEE ALSO
+--------
+
+going(5), init(8), inittab(5)
