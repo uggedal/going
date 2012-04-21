@@ -12,7 +12,7 @@ all: src/going
 	@mv src/going .
 
 clean:
-	@rm -f going src/going.[ch].html man/going.[15].html
+	@rm -f going src/going.[ch].html man/going.[15].html man/going.[15]
 
 install: all
 	@install going $(DESTDIR)$(prefix)/sbin
