@@ -20,8 +20,8 @@ install: all
 	@install -d $(DESTDIR)$(bindir)
 	@install going $(DESTDIR)$(bindir)/
 	@install -d $(DESTDIR)$(mandir)/man{1,5}
-	@install -m644 man/going.1 $(DESTDIR)$(mandir)/man1/
-	@install -m644 man/going.5 $(DESTDIR)$(mandir)/man5/
+	@gzip -c man/going.1 > $(DESTDIR)$(mandir)/man1/going.1.gz
+	@gzip -c man/going.5 > $(DESTDIR)$(mandir)/man5/going.5.gz
 
 uninstall:
 	@rm -f $(DESTDIR)$(bindir)/going $(DESTDIR)$(mandir)/man[15]/going.[15]
