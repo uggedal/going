@@ -14,7 +14,7 @@ To install `going` to `/usr/sbin` simply invoke:
 
 The default `/usr` prefix can be changed with:
 
-    PREFIX=/usr/local make install
+    make install PREFIX=/usr/local
 
 
 Usage
@@ -131,6 +131,7 @@ TODO
     - Update child struct, kill, wait and respawn.
     - Update struct for quarantined childs only.
   - Update usage instructions.
+* Possibly add automated tests.
 
 ### 2.0.0
 
