@@ -1,4 +1,4 @@
-PREFIX=/usr
+prefix=/usr
 
 VERSION=0.1.0
 
@@ -15,7 +15,7 @@ clean:
 	@rm -f going src/going.[ch].html man/going.[15].html
 
 install: all
-	@install going $(DESTDIR)$(PREFIX)/sbin
+	@install going $(DESTDIR)$(prefix)/sbin
 
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html

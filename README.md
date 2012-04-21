@@ -14,7 +14,7 @@ To install `going` to `/usr/sbin` simply invoke:
 
 The default `/usr` prefix can be changed with:
 
-    make install PREFIX=/usr/local
+    make install prefix=/usr/local
 
 
 Usage
