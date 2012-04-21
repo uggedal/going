@@ -6,7 +6,7 @@ CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
 CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
 LDFLAGS=-s
 
-.PHONY: clean doc debug
+.PHONY: clean doc debug publish
 
 all: src/going
 	@mv src/going .
