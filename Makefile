@@ -29,7 +29,7 @@ uninstall:
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
 	@rocco src/going.h && mv src/going{,.h}.html
-	@ronn --roff --html --organization='Going $(VERSION)' --style=toc \
+	@ronn --roff --html --organization='Going $(VERSION)' --style=toc,80c \
 		man/going.[85].ronn
 
 publish: doc
