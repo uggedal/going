@@ -636,7 +636,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
     default:
       kill_children();
       cleanup_children();
-      exit(EXIT_FAILURE);
+      exit(EXIT_SUCCESS);
   }
 }
 
