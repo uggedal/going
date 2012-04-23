@@ -48,6 +48,7 @@ publish: doc
 	git add index.html going.[ch85].html && \
 	git commit -m "Documentation rebuild." && \
 	git push origin gh-pages
+	@rm -rf tmp-pages
 
 debug:
 	@$(MAKE) --no-print-directory clean all CFLAGS='$(CFLAGS) -O0 -g' LDFLAGS=''
