@@ -14,7 +14,7 @@ all: src/going
 	@mv src/going .
 
 clean:
-	@rm -f going src/going.[ch].html man/going.[85].html man/going.[85]
+	@rm -f going doc/going.[ch].html doc/going.[85].html man/going.[85]
 
 install: all
 	@install -d $(DESTDIR)$(bindir)
@@ -27,8 +27,8 @@ uninstall:
 	@rm -f $(DESTDIR)$(bindir)/going $(DESTDIR)$(mandir)/man[85]/going.[85]
 
 doc:
-	@rocco src/going.c && mv src/going{,.c}.html
-	@rocco src/going.h && mv src/going{,.h}.html
+	@rocco src/going.c && mv src/going.html doc/going.c.html
+	@rocco src/going.h && mv src/going.html doc/going.h.html
 	@sed -i '6 a \
   <style> \
     th.code, \
@@ -38,15 +38,14 @@ doc:
     } \
   </style>' src/going.[ch].html
 	@ronn --roff --html --organization='Going $(VERSION)' --style=toc,80c \
-		man/going.[85].ronn
+		man/going.[85].ronn && mv man/going.[85].html doc/
 
 publish: doc
 	@rm -rf tmp-pages
 	git clone -q -b gh-pages git@github.com:uggedal/going.git tmp-pages
 	cd tmp-pages && \
-	cp -p ../src/going.[ch].html . && \
-	cp -p ../man/going.[85].html . && \
-	git add going.[ch85].html && \
+	cp -p ../doc/*.html . && \
+	git add index.html going.[ch85].html && \
 	git commit -m "Documentation rebuild." && \
 	git push origin gh-pages
 
