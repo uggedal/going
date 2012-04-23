@@ -29,6 +29,14 @@ uninstall:
 doc:
 	@rocco src/going.c && mv src/going{,.c}.html
 	@rocco src/going.h && mv src/going{,.h}.html
+	@sed -i '6 a \
+  <style> \
+    th.code, \
+    td.code { \
+      background-color: #eee; \
+      border-left: 1px solid #dbdbdb; \
+    } \
+  </style>' src/going.[ch].html
 	@ronn --roff --html --organization='Going $(VERSION)' --style=toc,80c \
 		man/going.[85].ronn
 

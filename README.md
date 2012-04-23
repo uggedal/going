@@ -63,12 +63,8 @@ TODO
 * Look into starting services with fresh environment, processgroup,
   stdinn/out/err.
 * Literate programming:
-  - Connect the paragraphs so that it reads well.
-  - Look into using solarized color scheme for pygments.
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
-  - Link to `going` man pages in introduction.
-  - Create new stylesheet based on ronn style.
 * Man pages: 
   - Daemon: going(8).
   - Config format: going(5).
