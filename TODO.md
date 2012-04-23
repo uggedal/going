@@ -25,6 +25,9 @@ TODO
 * Tag releases in git.
 * Create Arch Linux package.
 * Create Debian and RPM package (possibly using RPM).
+* Post to Arch Linux BBS (Community Contributions).
+* Post to Hacker News.
+* Post to r/programming, r/linux, r/archlinux, and other.
 
 
 1.1.0
