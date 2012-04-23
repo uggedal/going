@@ -36,7 +36,7 @@ doc:
       background-color: #eee; \
       border-left: 1px solid #dbdbdb; \
     } \
-  </style>' src/going.[ch].html
+  </style>' doc/going.[ch].html
 	@ronn --roff --html --organization='Going $(VERSION)' --style=toc,80c \
 		man/going.[85].ronn && mv man/going.[85].html doc/
 
