@@ -14,20 +14,12 @@ TODO
   - Config format: going(5).
 * GH-pages:
   - Create index.html with:
-    - Style based on ronn.
     - Header.
-    - Tagline.
-    - Navigation:
-      - going(8), going(5) (link to html ronn output).
-      - Documentation (link to literate source).
-      - Collabortion (link to GH repo).
-      - LICENSE.
     - Download section:
       - Links to tarball of release tags served by GH.
       - Link into CHANGES document.
       - Checksum.
   - Possibly append analytics tracking with Makefile.
-  - Remove content from README and point to GH-page.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
