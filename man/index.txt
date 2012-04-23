@@ -3,3 +3,4 @@ going(5)   going.5
 
 init(8)    http://manpages.debian.net/cgi-bin/man.cgi?query=INIT&sektion=8
 inittab(5) http://manpages.debian.net/cgi-bin/man.cgi?query=INITTAB&sektion=5
+exit(3)    http://manpages.debian.net/cgi-bin/man.cgi?query=EXIT&sektion=3

@@ -15,6 +15,15 @@ configuration files. Child processes are promptly respawned if they terminate.
 If a child terminates too fast (within a window of 5 seconds) it will be
 quarantined for 30 seconds before it will be respawned.
 
+OPTIONS
+-------
+
+  * `-d`:
+    Use an alternate configuration directory.
+
+EXAMPLES
+--------
+
 `going` is designed to be started from init(8)'s inittab(5) with the
 *respawn* action:
 
@@ -35,18 +44,6 @@ removed files in `/etc/going.d` with:
 
     kill -HUP <pid of going>
 
-Reloading configurations for already running processes is currently not
-supported without sending `going` a `SIGTERM` signal which terminates all
-its supervised processeses.
-
-All abnormal events will be logged to the daemon syslog facility which
-normally can be inspected in `/var/log/daemon.log`.
-
-OPTIONS
--------
-
-  * `-d`:
-    Use an alternate configuration directory.
 
 FILES
 -----
@@ -55,13 +52,29 @@ FILES
     The default directory where `going` reads configuration files
     as specified in going(5).
 
+ERROR LOGGING
+-------------
+
+All abnormal events will be logged to the daemon syslog facility which
+normally can be inspected in `/var/log/daemon.log`.
+
 SIGNALS
 -------
 
   * `SIGHUP`:
-    Describe ...
+    Trigger `going` to immediately iterate all configurations in
+    its configuration directory and spawn processes for new configuration
+    files and terminate running processes lacking a configuration file.
   * `SIGTERM`:
-    Describe ...
+    Trigger `going` to send the same signal to all its supervised processes
+    and clean up before terminating with exit(3).
+
+BUGS
+----
+
+Reloading configurations for already running processes is currently not
+supported without sending `going` a `SIGTERM` signal which terminates all
+its supervised processeses.
 
 AUTHOR
 ------
