@@ -1,0 +1,27 @@
+going(5) -- simple process supervisor
+=====================================
+
+DESCRIPTION
+-----------
+
+Description here.
+
+EXAMPLES
+--------
+
+Examples here.
+
+LIMITS
+------
+
+Document file and value limits.
+
+AUTHOR
+------
+
+Eivind Uggedal <eivind@uggedal.com>
+
+SEE ALSO
+--------
+
+going(8)
