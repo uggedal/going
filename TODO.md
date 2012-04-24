@@ -47,6 +47,7 @@ TODO
     - Update struct for quarantined childs only.
   - Update usage instructions.
 * Possibly add automated tests.
+  - Hook up to [Travis CI][travis] and compile on gcc and possibly clang.
 
 
 2.0.0
@@ -87,6 +88,7 @@ Other
 
 [foreman]: http://ddollar.github.com/foreman/
 [semantic]: http://semver.org/
+[travis]: https://groups.google.com/forum/#!msg/travis-ci/z9JNDGjKz-8/tRL0BpdSY24J
 [pselect]: http://www.kernel.org/doc/man-pages/online/pages/man2/select.2.html
 [ppoll]: http://www.kernel.org/doc/man-pages/online/pages/man2/poll.2.html
 [epoll]: http://www.kernel.org/doc/man-pages/online/pages/man2/epoll_wait.2.html
