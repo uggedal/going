@@ -24,6 +24,11 @@ OPTIONS
 EXAMPLES
 --------
 
+First you'll have to decide where to put the configuration files for your
+supervised processes and create that directory. The default is `/etc/going.d`:
+
+    mkdir /etc/going.d
+
 `going` is designed to be started from init(8)'s inittab(5) with the
 *respawn* action:
 
@@ -35,15 +40,12 @@ EXAMPLES
 
 Add simple going(5) style configs for your services to `/etc/going.d`:
 
-    cat >>/etc/going.d/salt-minion <<EOF
-    cmd=/usr/bin/salt-minion
-    EOF
+    echo "cmd=/usr/bin/salt-minion" > /etc/going.d/salt-minion
 
 You can gracefully reload configurations after you've added or
 removed files in `/etc/going.d` with:
 
     kill -HUP <pid of going>
-
 
 FILES
 -----
