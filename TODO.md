@@ -9,12 +9,8 @@ TODO
 * Literate programming:
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
-* Man pages: 
-  - Daemon: going(8).
-  - Config format: going(5).
 * GH-pages:
   - Create index.html with:
-    - Header.
     - Download section:
       - Links to tarball of release tags served by GH.
       - Link into CHANGES document.
@@ -24,7 +20,7 @@ TODO
 * Use [semantic versioning][semantic].
 * Tag releases in git.
 * Create Arch Linux package.
-* Create Debian and RPM package (possibly using RPM).
+* Create Debian and RPM package (using FPM).
 * Post to Arch Linux BBS (Community Contributions).
 * Post to Hacker News.
 * Post to r/programming, r/linux, r/archlinux, and other.

@@ -1,5 +1,6 @@
 going(8)   going.8
 going(5)   going.5
+h          going.h
 
 init(8)    http://manpages.debian.net/cgi-bin/man.cgi?query=INIT&sektion=8
 inittab(5) http://manpages.debian.net/cgi-bin/man.cgi?query=INITTAB&sektion=5

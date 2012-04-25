@@ -1,20 +1,36 @@
-going(5) -- simple process supervisor
-=====================================
+going(5) -- configuration files for simple process supervision
+==============================================================
 
 DESCRIPTION
 -----------
 
-Description here.
+A `going` configuration file contains instructions for how a child process
+should be spawned and respawned under supervison.
 
-EXAMPLES
---------
+The file name of the configuration is used internally by `going` to
+uniquely identify the child process.
 
-Examples here.
+The configuration consist of one instruction per line. Instructions are
+composed of a `key` and `value` seperated by an equal sign (=):
+
+    key=value
+
+`going` currently understands only one such key, `cmd`, the path
+to the supervised child process' executable with zero or more arguments:
+
+    cmd=/usr/bin/salt-minion -l error
 
 LIMITS
 ------
 
-Document file and value limits.
+The following limits are defined in the [`going.h`][h] headerfile.
+
+  * `CHILD_NAME_SIZE = 32`:
+    The maximum length of the file name of a configuration which is used to
+    uniquely identify the child process excluding a terminating null byte.
+  * `CHILD_CMD_SIZE = 256`:
+    The maximum length of the command line value in a configuration file
+    including arguments but excluding a terminating null byte.
 
 AUTHOR
 ------
