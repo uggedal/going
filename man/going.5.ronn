@@ -11,7 +11,7 @@ The file name of the configuration is used internally by `going` to
 uniquely identify the child process.
 
 The configuration consist of one instruction per line. Instructions are
-composed of a `key` and `value` seperated by an equal sign (=):
+composed of a `key` and `value` seperated by an equal sign (`=`):
 
     key=value
 
