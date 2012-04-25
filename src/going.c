@@ -448,12 +448,74 @@ bool respawn_terminated_children(void) {
 // a child process of the parent `going` process.
 void spawn_child(child_t *ch) {
 
+  // The child is no longer quarantined since it obviously got the go-ahead
+  // to spawn.
+  ch->quarantined = false;
+
+  pid_t ch_pid;
+
+  // We iterate until we get the desired behavior from `fork(3)`.
+  while (true) {
+    // `fork(3)` creates a new process which is an exact copy of its invoking
+    // process. We are inside the child process if the return value is zero.
+    if ((ch_pid = fork()) == 0) {
+
+      // We initialize an empty signal mask and block based on it, resulting
+      // in blockage of no signals. This is done since the parent process
+      // blocks certain signals and the child created by a `fork(3)` inherits
+      // its parents block mask.
+      sigset_t empty_mask;
+      sigemptyset(&empty_mask);
+      sigprocmask(SIG_SETMASK, &empty_mask, NULL);
+
+      // TODO: Should file descriptors 0, 1, 2 be closed or duped?
+
+      // TODO: Close file descriptors which should not be inherited or
+      //       use O_CLOEXEC when opening such files.
+
+      // Replace the child process with the executable reciding at the path
+      // of the command line.
+      exec_child(ch->cmd);
+
+      // If we reach this code the `execvp(3)` call failed. We log the error
+      // and exit this child process. Note that the normal flow in the parent
+      // continues, but it will get a `SIGCHLD` signal since one of its
+      // children terminated.
+      slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
+      exit(EXIT_FAILURE);
+
+    // If the return value of `fork(3)` is greater than zero we're in the
+    // parent process.
+    } else if (ch_pid > 0) {
+      // We note the time that the child process started so that we can track
+      // its uptime.
+      ch->up_at = time(NULL);
+      // Storing the process id of the child process is important so that we
+      // know which process failed if we get a `SIGCHLD` signal later.
+      ch->pid = ch_pid;
+      return;
+
+    // If the return value of `fork(3)` is negative the call did not succeed.
+    // We log the error and wait a little before trying again.
+    } else {
+      slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
+      sleep(EMERG_SLEEP);
+    }
+  }
+}
+
+// ### Exec wrapper
+// Parses the path and arguments from the given command line. Replaces
+// the current process with that of the executable file reciding at
+// the parsed path.
+void exec_child(const char *cmd) {
+
   // A copy of the command line is made so that we can use `strsep(3)`
   // (which modifies its argument) against it. It is safe to use `strcpy(3)`
   // to copy the command line from our child structure into the buffer since
   // we know that their constant sizes are equal.
   char cmd_buf[CHILD_CMD_SIZE+1];
-  char *cmd_p = strcpy(cmd_buf, ch->cmd);
+  char *cmd_p = strcpy(cmd_buf, cmd);
 
   // To avoid allocating space on the heap for the argument vector we
   // use a constant sized array of pointers into the constant sized
@@ -488,61 +550,12 @@ void spawn_child(child_t *ch) {
   // The argument vector given to `execvp(3)` needs to be null terminated.
   argv[i] = NULL;
 
-  // The child is no longer quarantined since it obviously got the go-ahead
-  // to spawn.
-  ch->quarantined = false;
-
-  pid_t ch_pid;
-
-  // We iterate until we get the desired behavior from `fork(3)`.
-  while (true) {
-    // `fork(3)` creates a new process which is an exact copy of its invoking
-    // process. We are inside the child process if the return value is zero.
-    if ((ch_pid = fork()) == 0) {
-      // We initialize an empty signal mask and block based on it, resulting
-      // in blockage of no signals. This is done since the parent process
-      // blocks certain signals and the child created by a `fork(3)` inherits
-      // its parents block mask.
-      sigset_t empty_mask;
-      sigemptyset(&empty_mask);
-      sigprocmask(SIG_SETMASK, &empty_mask, NULL);
-
-      // TODO: Should file descriptors 0, 1, 2 be closed or duped?
-
-      // TODO: Close file descriptors which should not be inherited or
-      //       use O_CLOEXEC when opening such files.
-
-      // `execvp(3)` is used to replace this child process with the binary
-      // reciding at the path we give as the first argument. In addition it
-      // tries to look up the binary in `$PATH` if a non-absolute path is
-      // given. By incrementing the `argv` pointer we give as the second
-      // argument the receiver sees it as `argv[1:]`.
-      execvp(argv[0], argv + 1);
-      // If we reach this code the `execvp(3)` call failed. We log the error
-      // and exit this child process. Note that the normal flow in the parent
-      // continues, but it will get a `SIGCHLD` signal since one of its
-      // children terminated.
-      slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
-      exit(EXIT_FAILURE);
-
-    // If the return value of `fork(3)` is greater than zero we're in the
-    // parent process.
-    } else if (ch_pid > 0) {
-      // We note the time that the child process started so that we can track
-      // its uptime.
-      ch->up_at = time(NULL);
-      // Storing the process id of the child process is important so that we
-      // know which process failed if we get a `SIGCHLD` signal later.
-      ch->pid = ch_pid;
-      return;
-
-    // If the return value of `fork(3)` is negative the call did not succeed.
-    // We log the error and wait a little before trying again.
-    } else {
-      slog(LOG_EMERG, "Could not fork, sleeping %ds", EMERG_SLEEP);
-      sleep(EMERG_SLEEP);
-    }
-  }
+  // `execvp(3)` is used to replace this child process with the binary
+  // reciding at the path we give as the first argument. In addition it
+  // tries to look up the binary in `$PATH` if a non-absolute path is
+  // given. By incrementing the `argv` pointer we give as the second
+  // argument the receiver sees it as `argv[1:]`.
+  execvp(argv[0], argv + 1);
 }
 
 
