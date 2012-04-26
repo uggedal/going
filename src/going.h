@@ -78,6 +78,7 @@ bool parse_config(child_t *ch, FILE *fp, char *name);
 void spawn_unquarantined_children(void);
 bool respawn_terminated_children(void);
 void spawn_child(child_t *ch);
+void exec_child(const char *cmd);
 
 // Signal handling
 void block_signals(sigset_t *block_mask);

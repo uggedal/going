@@ -47,7 +47,7 @@
 #include <stdlib.h>
 
 // Include POSIX operating system functions like
-// `fork(3)`, `execvp(3)`, and `sleep(3)`.
+// `fork(3)`, `setsid(3)`, `execvp(3)`, and `sleep(3)`.
 #include <unistd.h>
 
 // Include macros giving us access to the boolean types `true` and `false`.
@@ -459,6 +459,11 @@ void spawn_child(child_t *ch) {
     // `fork(3)` creates a new process which is an exact copy of its invoking
     // process. We are inside the child process if the return value is zero.
     if ((ch_pid = fork()) == 0) {
+
+      // FIXME: is this needed? do some research.
+      // The child should have its own session and become the process
+      // group leader.
+      setsid();
 
       // We initialize an empty signal mask and block based on it, resulting
       // in blockage of no signals. This is done since the parent process
