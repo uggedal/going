@@ -11,9 +11,9 @@ TODO
     on kernel.org.
 * GH-pages:
   - Download section:
-    - Links to tarball of release tags served by GH.
-    - Link into CHANGES document.
-    - Checksum.
+      - Links to tarball of release tags served by GH.
+      - Link into CHANGES document.
+      - Checksum.
   - Possibly append analytics tracking with Makefile.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
