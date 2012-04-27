@@ -10,11 +10,10 @@ TODO
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
 * GH-pages:
-  - Create index.html with:
-    - Download section:
-      - Links to tarball of release tags served by GH.
-      - Link into CHANGES document.
-      - Checksum.
+  - Download section:
+    - Links to tarball of release tags served by GH.
+    - Link into CHANGES document.
+    - Checksum.
   - Possibly append analytics tracking with Makefile.
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
