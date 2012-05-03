@@ -30,6 +30,8 @@ TODO
 
 * Add support for setting the environment.
 * Add support for `uid` and `gid`.
+* Possibly run each child in its own cgroup so that eventual grandchildren
+  can be handled.
 * Possibly add support for `chdir`.
 * Possibly add support for `chroot`.
 * Possibly create backoff algorithm for quarantined children in stead of
