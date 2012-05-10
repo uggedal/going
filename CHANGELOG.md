@@ -1,17 +1,14 @@
-1.0.0 -- YYYY-MM-DD
+0.1.0 -- 2012-05-10
 -------------------
 
 ### Features
 
-* Feature 1
-* Feature 2
+* Initial features.
 
 ### Bugfixes
 
-* Bugfix 1
-* Bugfix 2
+* None.
 
 ### Documentation
 
-* Docfix 1
-* Docfix 2
+* Initial man pages and literate source.
