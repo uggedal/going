@@ -14,7 +14,15 @@ all: src/going
 	@mv src/going .
 
 clean:
-	@rm -f going doc/going.[ch].html doc/going.[85].html man/going.[85]
+	@rm -f going doc/going.[ch].html doc/going.[85].html man/going.[85] \
+		going-${VERSION}.tar.gz
+
+dist: clean doc
+	@mkdir -p going-${VERSION}/man
+	@cp -R README.md CHANGELOG.md LICENSE Makefile src going-${VERSION}
+	@cp man/going.[85] going-${VERSION}/man
+	@tar -czf going-${VERSION}.tar.gz going-${VERSION}
+	@rm -rf going-${VERSION}
 
 install: all
 	@install -d $(DESTDIR)$(bindir)
