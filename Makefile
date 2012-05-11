@@ -29,7 +29,7 @@ install: all
 	@install going $(DESTDIR)$(bindir)/
 	@install -d $(DESTDIR)$(mandir)/man{8,5}
 	@install man/going.8 $(DESTDIR)$(mandir)/man8/going.8
-	@install man/going.5 $(DESTDIR)$(mandir)/man8/going.5
+	@install man/going.5 $(DESTDIR)$(mandir)/man5/going.5
 
 uninstall:
 	@rm -f $(DESTDIR)$(bindir)/going $(DESTDIR)$(mandir)/man[85]/going.[85]
