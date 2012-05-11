@@ -2,7 +2,7 @@ prefix=/usr
 bindir=$(prefix)/sbin
 mandir=$(prefix)/share/man
 
-VERSION=0.1.0
+VERSION=0.1.1
 
 CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
 CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
@@ -28,8 +28,8 @@ install: all
 	@install -d $(DESTDIR)$(bindir)
 	@install going $(DESTDIR)$(bindir)/
 	@install -d $(DESTDIR)$(mandir)/man{8,5}
-	@gzip -c man/going.8 > $(DESTDIR)$(mandir)/man8/going.8.gz
-	@gzip -c man/going.5 > $(DESTDIR)$(mandir)/man5/going.5.gz
+	@install man/going.8 $(DESTDIR)$(mandir)/man8/going.8
+	@install man/going.5 $(DESTDIR)$(mandir)/man8/going.5
 
 uninstall:
 	@rm -f $(DESTDIR)$(bindir)/going $(DESTDIR)$(mandir)/man[85]/going.[85]

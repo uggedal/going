@@ -1,0 +1,21 @@
+# Maintainer: Eivind Uggedal <eivind@uggedal.com>
+
+pkgname=going
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Simple process supervisor.'
+arch=('x86_64')
+url='http://uggedal.github.com/going'
+license=('custom: ISC')
+depends=('glibc')
+conflicts=('systemd')
+source=("https://github.com/downloads/uggedal/going/$pkgname-$pkgver.tar.gz")
+md5sums=('e7c99a208d47a32b661b25447c735111')
+
+build() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}

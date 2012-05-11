@@ -1,14 +1,10 @@
 0.1.0 -- 2012-05-10
 -------------------
 
-### Features
+* Remove compression of man pages from the install make target since
+  package managers handles this if needed.
 
-* Initial features.
+0.1.0 -- 2012-05-10
+-------------------
 
-### Bugfixes
-
-* None.
-
-### Documentation
-
-* Initial man pages and literate source.
+* Initial release.
