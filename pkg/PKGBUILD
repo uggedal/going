@@ -1,7 +1,7 @@
 # Maintainer: Eivind Uggedal <eivind@uggedal.com>
 
 pkgname=going
-pkgver=0.1.0
+pkgver=0.1.2
 pkgrel=1
 pkgdesc='Simple process supervisor.'
 arch=('x86_64')
@@ -10,7 +10,7 @@ license=('custom: ISC')
 depends=('glibc')
 conflicts=('systemd')
 source=("https://github.com/downloads/uggedal/going/$pkgname-$pkgver.tar.gz")
-md5sums=('e7c99a208d47a32b661b25447c735111')
+md5sums=('25fbf6b9a44fe1083f1f8a4ef1805e51')
 
 build() {
   cd $pkgname-$pkgver
