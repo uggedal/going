@@ -4,8 +4,9 @@ TODO
 1.0.0
 -----
 
-* Look into starting services with fresh environment, processgroup,
-  stdinn/out/err.
+* Setup fresh environment for children.
+* Start children in their own session.
+* Connect stdinn/out/err to /dev/null.
 * Literate programming:
   - Link references to library functions in section 3 to online man pages
     on kernel.org.
@@ -18,7 +19,6 @@ TODO
 * Look into [foreman][] format.
 * Use [semantic versioning][semantic].
 * Tag releases in git.
-* Create Arch Linux package.
 * Create Debian and RPM package (using FPM).
 * Post to Arch Linux BBS (Community Contributions).
 * Post to Hacker News.
