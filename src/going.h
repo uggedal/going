@@ -7,7 +7,7 @@
 #define IDENT "going"
 
 // A semantic version.
-#define VERSION "0.1.2"
+#define VERSION "0.9.0"
 
 // The command line flag used to change the default configuration directory.
 #define CMD_FLAG_CONFDIR "-d"

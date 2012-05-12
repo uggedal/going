@@ -2,7 +2,7 @@ prefix=/usr
 bindir=$(prefix)/sbin
 mandir=$(prefix)/share/man
 
-VERSION=0.1.2
+VERSION=0.9.0
 
 CFLAGS=-std=gnu99 -Os -Wall -pedantic -Werror -Wextra -Wshadow
 CFLAGS+=-Wstrict-prototypes -Wunreachable-code -Waggregate-return
