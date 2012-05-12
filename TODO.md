@@ -34,6 +34,11 @@ TODO
   can be handled.
 * Possibly add support for `chdir`.
 * Possibly add support for `chroot`.
+* Possible add support for private networking by setting up a network
+  namespace with only a loopback interface configured in it.
+* Possible support for limiting capabilities.
+* Possible support for setting resource limits with `setrlimit(2)`.
+* Possible support for file system limiting using file system namespacing.
 * Possibly create backoff algorithm for quarantined children in stead of
   quarantining them a constant time.
 * Possibly use higher resolution timers for childrens uptime with
