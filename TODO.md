@@ -23,6 +23,7 @@ TODO
 * Post to Arch Linux BBS (Community Contributions).
 * Post to Hacker News.
 * Post to r/programming, r/linux, r/archlinux, and other.
+* Send tips to devopsweekly.
 
 
 1.1.0
