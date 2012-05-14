@@ -38,10 +38,6 @@
 // Dependencies
 // ------------
 
-// By defining the `_GNU_SOURCE` feature test macro we get access to a safe
-// `basename(3)` implementation from `string.h`.
-#define _GNU_SOURCE
-
 // Include memory allocation and process control functions and macros like
 // `exit(3)`, `atexit(3)`, `calloc(3)`, and `EXIT_SUCCESS`.
 #include <stdlib.h>
@@ -564,11 +560,9 @@ void exec_child(const char *cmd) {
       // of the argument vector which explains why we initialized the index
       // to one.
       if (i == 1) {
-        // The first argument will be the path to the binary we'll spawn.
-        argv[0] = cmd_word;
-        // The second argument will be the base filename of the path
-        // to the binary.
-        argv[1] = basename(cmd_word);
+        // The first and second argument will be the path to the binary
+        // we'll spawn.
+        argv[0] = argv[1] = cmd_word;
       } else {
         // The following arguments will be arguments given to the binary
         // we'll spawn.
