@@ -309,6 +309,8 @@ void remove_old_children(struct dirent **dlist, int dn) {
 bool parse_config(child_t *ch, FILE *fp, char *name) {
   char buf[CONFIG_LINE_BUFFER_SIZE], *line, *key, *value;
 
+  // Set the default working directory to the root of the filesystem.
+  strcpy(ch->cwd, "/");
   ch->pid = 0;
   ch->up_at = 0;
   ch->next = NULL;
@@ -331,7 +333,7 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
   // size of characters into the buffer and terminates it.
   while ((line = fgets(buf, sizeof(buf), fp)) != NULL) {
 
-    // The configuration key is found by searching the line until we find
+    // A configuration key is found by searching the line until we find
     // a `=` character. `strsep(3)` returns a pointer equal to the given
     // line pointer and overwrites the `=` character by a terminating `\0`
     // character. `strsep(3)` then updates the given line pointer to point
@@ -345,25 +347,38 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
     // pointers will be null.
     if (key != NULL && value != NULL) {
 
-      // We check that the configuration key matches the command key and
+      // We check if the configuration key matches the command key and
       // the value contains at least one character.
       if (strcmp(CONFIG_CMD_KEY, key) == 0 && str_not_empty(value)) {
 
-        // If we're able to copy the command value read from the configuration
-        // file into the constant sized `cmd` member on our child structure
-        // we return immediately with a successfull status.
-        if (safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
-          return true;
-        } else {
+        // If we're unable to copy the command value read from the
+        // configuration file into the constant sized `cmd` member of our
+        // child structure we return immediately with an invalid status.
+        if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
           slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CONFIG_CMD_KEY, name, CHILD_CMD_SIZE);
+               CONFIG_CMD_KEY, name, sizeof(ch->cmd)-1);
+          return false;
+        }
+
+      // If this was not a command key, we check if the configuration key
+      // matches the current working directory key and the value contains
+      // at least one character.
+      } else if (strcmp(CONFIG_CWD_KEY, key) == 0 && str_not_empty(value)) {
+
+        // We try to copy the working directory value info the constant
+        // sized `cwd` member of our child structure. We return
+        // immediately with an invalid status if it did not fit.
+        if (!safe_strcpy(ch->cwd, value, sizeof(ch->cwd))) {
+          slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
+               CONFIG_CWD_KEY, name, sizeof(ch->cwd)-1);
+          return false;
         }
       }
     }
   }
-  // If no lines in the configuration file contained a valid command line we
-  // return with an invalid status.
-  return false;
+  // If we were able to populate our child structure with a command
+  // we deem this configuration valid.
+  return str_not_empty(ch->cmd);
 }
 
 
@@ -478,6 +493,15 @@ void spawn_child(child_t *ch) {
       // TODO: Close file descriptors which should not be inherited or
       //       use O_CLOEXEC when opening such files.
 
+
+      // Change the current working directory to that specified in the
+      // child's configuration file or the default `/`.
+      if (chdir(ch->cwd) < 0) {
+        slog(LOG_ERR, "Can't change working directory to %s: %m", ch->cwd);
+        cleanup_children();
+        _exit(EXIT_FAILURE);
+      }
+
       // Replace the child process with the executable reciding at the path
       // of the command line.
       exec_child(ch->cmd);
@@ -487,7 +511,8 @@ void spawn_child(child_t *ch) {
       // continues, but it will get a `SIGCHLD` signal since one of its
       // children terminated.
       slog(LOG_ERR, "Can't execute %s: %m", ch->cmd);
-      exit(EXIT_FAILURE);
+      cleanup_children();
+      _exit(EXIT_FAILURE);
 
     // If the return value of `fork(3)` is greater than zero we're in the
     // parent process.

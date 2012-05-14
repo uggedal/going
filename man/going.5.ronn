@@ -15,10 +15,29 @@ composed of a `key` and `value` seperated by an equal sign (`=`):
 
     key=value
 
-`going` currently understands only one such key, `cmd`, the path
-to the supervised child process' executable with zero or more arguments:
+The following configuration keys are supported:
+
+  * `cmd`:
+    The path to the supervised child process' executable with
+    zero or more arguments. This configuration key is required.
+  * `cwd`:
+    The current working directory the supervised child process is spawned in.
+    This configuration key is optional and defaults to `/`.
+
+EXAMPLES
+--------
+
+A simple supervision of a salt-minion process with an argument to set
+its log level to error:
 
     cmd=/usr/bin/salt-minion -l error
+
+Supervision of a gunicorn process with arguments to set its configuration file
+and the python module to load. Gunicorn needs to be spawned in a working
+directory where it can find the given python module:
+
+    cmd=/usr/bin/gunicorn -c /etc/gunicorn.d/mq.conf mq:app
+    cwd=/usr/local/src/mq
 
 LIMITS
 ------
@@ -31,6 +50,10 @@ The following limits are defined in the [`going.h`][h] headerfile.
   * `CHILD_CMD_SIZE = 256`:
     The maximum length of the command line value in a configuration file
     including arguments but excluding a terminating null byte.
+  * `CHILD_CWD_SIZE = 256`:
+    The maximum length of the current working directory value in a
+    configuration file including arguments but excluding a terminating
+    null byte.
 
 AUTHOR
 ------

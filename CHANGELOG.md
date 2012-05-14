@@ -1,10 +1,10 @@
-0.1.0 -- 2012-05-10
+0.9.1 -- 2012-05-14
 -------------------
 
-* Remove compression of man pages from the install make target since
-  package managers handles this if needed.
+* Add support for setting the working directory of children
+  with the `cwd` configuration key.
 
-0.1.0 -- 2012-05-10
+0.9.0 -- 2012-05-13
 -------------------
 
 * Initial release.

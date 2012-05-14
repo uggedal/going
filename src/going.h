@@ -21,6 +21,7 @@
 // have to `malloc(3)` our entire child structure once per child.
 #define CHILD_NAME_SIZE 32
 #define CHILD_CMD_SIZE 256
+#define CHILD_CWD_SIZE 256
 #define CHILD_ARGV_LEN CHILD_CMD_SIZE/2
 
 // Configuration file specifics like the default place to look for
@@ -29,6 +30,7 @@
 #define CONFIG_DIR "/etc/going.d"
 #define CONFIG_LINE_BUFFER_SIZE CHILD_CMD_SIZE+32
 #define CONFIG_CMD_KEY "cmd"
+#define CONFIG_CWD_KEY "cwd"
 
 // Bad children which terminates before the limit we set here should be
 // quarantined accordingly.
@@ -52,6 +54,7 @@ static struct timespec QUARANTINE_PERIOD = {30, 0};
 typedef struct going_child {
   char name[CHILD_NAME_SIZE+1];
   char cmd[CHILD_CMD_SIZE+1];
+  char cwd[CHILD_CWD_SIZE+1];
   pid_t pid;
   time_t up_at;
   bool quarantined;

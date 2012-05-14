@@ -37,7 +37,6 @@ TODO
 * Add support for `uid` and `gid`.
 * Possibly run each child in its own cgroup so that eventual grandchildren
   can be handled.
-* Possibly add support for `chdir`.
 * Possibly add support for `chroot`.
 * Possible add support for private networking by setting up a network
   namespace with only a loopback interface configured in it.
