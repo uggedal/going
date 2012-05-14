@@ -1,1 +1,1 @@
-cmd=./test/echo.sh_not_here
+cmd=/bin/no_such_cmd

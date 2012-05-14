@@ -1,0 +1,2 @@
+cmd=/bin/cwd_not_found
+cwd=/tmp/no_such_dir
