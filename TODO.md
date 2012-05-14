@@ -4,6 +4,10 @@ TODO
 1.0.0
 -----
 
+* Handle arguments enclosed in quotes with spaces and arguments containing
+  escaped spaces so that the following is possible:
+  - /bin/sh -c 'echo 1 && sleep 5 && echo 2'
+  - Should we just wrap the exec call in /bin/sh -c '<cmd>'?
 * Setup fresh environment for children.
 * Start children in their own session.
 * Connect stdinn/out/err to /dev/null.
