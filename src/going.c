@@ -784,7 +784,7 @@ inline bool str_not_empty(char *str) {
 // if it was truncated according to the size argument.
 inline bool safe_strcpy(char *dst, const char *src, size_t size) {
   // We use `snprintf(3)` since `strcpy(3)` can overflow its desination string
-  // and `strncpy(3)` does not ensue a terminating null for its destination.
+  // and `strncpy(3)` does not ensure a terminating null for its destination.
   // If we had `strlcpy(3)` in GLIBC this function would be moot...
   return (unsigned) snprintf(dst, size, "%s", src) < size;
 }
