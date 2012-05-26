@@ -685,9 +685,11 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
 // Returns a pointer to the tail child of the global linked list
 // of children. Returns null if the head child is null.
 child_t *get_tail_child(void) {
-  child_t *tail_ch;
+  child_t *tail_ch = head_ch;
 
-  for (tail_ch = head_ch; tail_ch; tail_ch = tail_ch->next);
+  while (tail_ch != NULL && tail_ch->next != NULL) {
+    tail_ch = tail_ch->next;
+  }
 
   return tail_ch;
 }
