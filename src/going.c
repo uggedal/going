@@ -1,4 +1,4 @@
-// Ensure your processes are still `going`. A simple ICS licensed
+// Ensure your processes are still `going`. A simple ISC licensed
 // process supervisor.
 //
 // Design
