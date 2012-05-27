@@ -123,8 +123,8 @@ int main(int argc, char **argv) {
   // into our global linked list of child structures.
   parse_confdir(confdir);
 
-  // All quarantined (a newly initialized child structure is quarantined by
-  // default) children is spawned for the first time.
+  // All unquarantined (a newly initialized child structure is unquarantined
+  // by default) children is spawned for the first time.
   spawn_unquarantined_children();
 
   // We launch our main loop which waits for signals and handles them
