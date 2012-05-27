@@ -222,7 +222,7 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
       if ((fp = fopen(path, "r")) != NULL) {
 
         // Allocate memory to hold a child structure for this configuration.
-        child_t *ch = safe_malloc(sizeof(child_t));
+        child_t *ch = safe_alloc(sizeof(child_t));
 
         // Try to parse this configuration file into the child structure we
         // recently allocated.
@@ -794,7 +794,7 @@ inline bool safe_strcpy(char *dst, const char *src, size_t size) {
 // ### Safe heap allocation
 // A wrapper arround `calloc(3)` which blocks until we get a pointer to the
 // requested memory on the heap.
-void *safe_malloc(size_t size)
+void *safe_alloc(size_t size)
 {
   void	*mp;
 

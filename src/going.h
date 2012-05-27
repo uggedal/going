@@ -100,6 +100,6 @@ void cleanup_child(child_t *ch);
 // Utility functions
 bool str_not_empty(char *str);
 bool safe_strcpy(char *dst, const char *src, size_t size);
-void *safe_malloc(size_t size);
+void *safe_alloc(size_t size);
 int only_files_selector(const struct dirent *d);
 void slog(int priority, char *message, ...);
