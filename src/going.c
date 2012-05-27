@@ -123,9 +123,8 @@ int main(int argc, char **argv) {
   // into our global linked list of child structures.
   parse_confdir(confdir);
 
-  // All unquarantined (a newly initialized child structure is unquarantined
-  // by default) children is spawned for the first time.
-  spawn_unquarantined_children();
+  // All children is spawned for the first time.
+  spawn_ready_children();
 
   // We launch our main loop which waits for signals and handles them
   // until it receives a terminating signal and promptly exits this process.
@@ -218,15 +217,24 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
       snprintf(path, PATH_MAX + 1, "%s/%s", dir, dlist[i]->d_name);
 
       // Try to open the configuration file for reading. If we're unable to
-      // open it we skip this configuration.
-      if ((fp = fopen(path, "r")) != NULL) {
+      // open it we skip this configuration and log the error.
+      if ((fp = fopen(path, "r")) == NULL) {
+        slog(LOG_ERR, "Can't read %s: %m", path);
+      } else {
 
         // Allocate memory to hold a child structure for this configuration.
         child_t *ch = safe_alloc(sizeof(child_t));
 
         // Try to parse this configuration file into the child structure we
         // recently allocated.
-        if (parse_config(ch, fp, dlist[i]->d_name)) {
+        if (!parse_config(ch, fp, dlist[i]->d_name)) {
+
+          // If we were unable to parse the configuration we free the
+          // allocated memory for the child strucure since we don't longer
+          // need it and have no references to it after this function exits.
+          cleanup_child(ch);
+        } else {
+
           // If we successfully parsed this configuration file we have to add
           // the resulting child structure to our linked list of children.
           if (tail_ch) {
@@ -240,21 +248,11 @@ void add_new_children(const char *dir, struct dirent **dlist, int dn) {
           // This child is now the new tail of the global linked list of
           // children.
           tail_ch = ch;
-        } else {
-          // If we were unable to parse the configuration we free the
-          // allocated memory for the child strucure since we don't longer
-          // need it and have no references to it after this function exits.
-          cleanup_child(ch);
         }
 
         // Flush the stream and close the underlying file descriptor for the
         // opened configuration file.
         fclose(fp);
-
-      // If we were unable to open the configuration file for reading we
-      // skip this configuration.
-      } else {
-        slog(LOG_ERR, "Can't read %s: %m", path);
       }
     }
   }
@@ -312,7 +310,7 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
   ch->next = NULL;
 
   // We set the child as quarantined so that we can use the
-  // `spawn_unquarantined_children()` function to bring it up.
+  // `spawn_ready_children()` function to bring it up.
   ch->quarantined = true;
 
   // Since the name member of our child structure has a constant size we have
@@ -381,13 +379,13 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
 // Execution of children
 // ---------------------
 
-// ### Spawn unquarantined children
+// ### Spawn ready children
 // Iterates over all our children and spawn them if they currently are
 // quarantined and safely can be unquarantined.
 // This function can also spawn children for the first time since all
 // child structures are initialized as quarantined with a last started
 // timestamp of epoch.
-void spawn_unquarantined_children(void) {
+void spawn_ready_children(void) {
   child_t *ch;
 
   // Iterate over all children and spawn those which is quarantined
@@ -636,8 +634,8 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       if (errno == EAGAIN) {
         // This means that we've previously set a timeout of
         // `QUARANTINE_PERIOD` so that we could wake up and unquarantine
-        // and spawn quarantined children.
-        spawn_unquarantined_children();
+        // and spawn ready children.
+        spawn_ready_children();
         // Since all quarantined children can be unquarantined and spawned
         // after waiting `QUARANTINE_PERIOD` we don't have to wake up
         // again before we get a new signal.
@@ -665,7 +663,7 @@ void wait_forever(sigset_t *block_mask, const char *confdir) {
       parse_confdir(confdir);
       // If we've received new children to supervise those are spawned for
       // their first time.
-      spawn_unquarantined_children();
+      spawn_ready_children();
       break;
 
     // We've received a terminating signal that we can handle. We should

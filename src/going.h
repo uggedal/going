@@ -78,7 +78,7 @@ void remove_old_children(struct dirent **dlist, int dn);
 bool parse_config(child_t *ch, FILE *fp, char *name);
 
 // Execution of children
-void spawn_unquarantined_children(void);
+void spawn_ready_children(void);
 bool respawn_terminated_children(void);
 void spawn_child(child_t *ch);
 void exec_child(const char *cmd);
