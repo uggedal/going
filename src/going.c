@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 
 // Returns the default configuration directory or a non-standard location
 // if the configuration directory command line flag is found.
-inline char *parse_args(int argc, char **argv) {
+char *parse_args(int argc, char **argv) {
 
   // If we only have on argument, the name of the binary for this source,
   // we simply return the default configuration directory.
@@ -590,7 +590,7 @@ void exec_child(const char *cmd) {
 // For handling signals synchronously in our main loop with `sigtimedwait(3)`
 // we need to set the `going` process' signal mask (a set of signals whose
 // delivery from the kernel is blocked).
-inline void block_signals(sigset_t *block_mask) {
+void block_signals(sigset_t *block_mask) {
   sigemptyset(block_mask);
 
   // The `SIGCHLD` signal is delivered if a child process terminates. The
@@ -697,7 +697,7 @@ child_t *get_tail_child(void) {
 // ### Existence of child
 // Check whether our liked list of children contains the given child
 // identified by name.
-inline bool has_child(char *name) {
+bool has_child(char *name) {
   for (child_t *ch = head_ch; ch != NULL; ch = ch->next) {
     if (strncmp(ch->name, name, CHILD_NAME_SIZE) == 0) {
       return true;
@@ -709,7 +709,7 @@ inline bool has_child(char *name) {
 // ### Existence of config
 // Check whether a given child identified by name still is present in a
 // directory listing of our configuration directory.
-inline bool child_active(char *name, struct dirent **dlist, int dn) {
+bool child_active(char *name, struct dirent **dlist, int dn) {
   for (int i = dn - 1; i >= 0; i--) {
     if (strncmp(name, dlist[i]->d_name, CHILD_NAME_SIZE) == 0) {
       return true;
@@ -766,7 +766,7 @@ void cleanup_children(void) {
 
 // ### Free memory for a child
 // Free the memory consumed by the given child.
-inline void cleanup_child(child_t *ch) {
+void cleanup_child(child_t *ch) {
   free(ch);
 }
 
@@ -775,16 +775,16 @@ inline void cleanup_child(child_t *ch) {
 // -----------------
 
 // ### String content
-// A simple inline function to determine whether a string has any content.
-inline bool str_not_empty(char *str) {
+// A simple function to determine whether a string has any content.
+bool str_not_empty(char *str) {
   return strnlen(str, 1) == 1;
 }
 
 // ### Safe string copy
-// A safe inline function for copying a string.
+// A safe function for copying a string.
 // Returns true if the source string fits within the given size or false
 // if it was truncated according to the size argument.
-inline bool safe_strcpy(char *dst, const char *src, size_t size) {
+bool safe_strcpy(char *dst, const char *src, size_t size) {
   // We use `snprintf(3)` since `strcpy(3)` can overflow its desination string
   // and `strncpy(3)` does not ensure a terminating null for its destination.
   // If we had `strlcpy(3)` in GLIBC this function would be moot...
