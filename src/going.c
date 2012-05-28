@@ -341,38 +341,40 @@ bool parse_config(child_t *ch, FILE *fp, char *name) {
     value = strsep(&line, "\n");
 
     // If `strsep(3)` did not find the tokens we searched for the returned
-    // pointers will be null.
-    if (key != NULL && value != NULL) {
+    // pointers will be null and we skip this line.
+    if (key == NULL || value == NULL) {
+      continue;
+    }
 
-      // We check if the configuration key matches the command key and
-      // the value contains at least one character.
-      if (strcmp(CONFIG_CMD_KEY, key) == 0 && str_not_empty(value)) {
+    // We check if the configuration key matches the command key and
+    // the value contains at least one character.
+    if (strcmp(CONFIG_CMD_KEY, key) == 0 && str_not_empty(value)) {
 
-        // If we're unable to copy the command value read from the
-        // configuration file into the constant sized `cmd` member of our
-        // child structure we return immediately with an invalid status.
-        if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
-          slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CONFIG_CMD_KEY, name, sizeof(ch->cmd)-1);
-          return false;
-        }
+      // If we're unable to copy the command value read from the
+      // configuration file into the constant sized `cmd` member of our
+      // child structure we return immediately with an invalid status.
+      if (!safe_strcpy(ch->cmd, value, sizeof(ch->cmd))) {
+        slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
+             CONFIG_CMD_KEY, name, sizeof(ch->cmd)-1);
+        return false;
+      }
 
-      // If this was not a command key, we check if the configuration key
-      // matches the current working directory key and the value contains
-      // at least one character.
-      } else if (strcmp(CONFIG_CWD_KEY, key) == 0 && str_not_empty(value)) {
+    // If this was not a command key, we check if the configuration key
+    // matches the current working directory key and the value contains
+    // at least one character.
+    } else if (strcmp(CONFIG_CWD_KEY, key) == 0 && str_not_empty(value)) {
 
-        // We try to copy the working directory value info the constant
-        // sized `cwd` member of our child structure. We return
-        // immediately with an invalid status if it did not fit.
-        if (!safe_strcpy(ch->cwd, value, sizeof(ch->cwd))) {
-          slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
-               CONFIG_CWD_KEY, name, sizeof(ch->cwd)-1);
-          return false;
-        }
+      // We try to copy the working directory value info the constant
+      // sized `cwd` member of our child structure. We return
+      // immediately with an invalid status if it did not fit.
+      if (!safe_strcpy(ch->cwd, value, sizeof(ch->cwd))) {
+        slog(LOG_ERR, "Value of %s= in %s is too long (max: %d)",
+             CONFIG_CWD_KEY, name, sizeof(ch->cwd)-1);
+        return false;
       }
     }
   }
+
   // If we were able to populate our child structure with a command
   // we deem this configuration valid.
   return str_not_empty(ch->cmd);
