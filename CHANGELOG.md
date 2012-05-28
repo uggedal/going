@@ -1,4 +1,12 @@
-1.9.1 -- 2012-05-14
+0.9.2 -- 2012-05-28
+-------------------
+
+* Fix bug where a reload of configurations through a SIGHUP signal
+  re-instantiated and re-execed all children previously under supervision.
+* Various minor style fixes based on feedback from a
+  [Hacker News story][hn].
+
+0.9.1 -- 2012-05-14
 -------------------
 
 * Add support for setting the working directory of children
@@ -10,3 +18,5 @@
 -------------------
 
 * Initial release.
+
+[hn]: http://news.ycombinator.com/item?id=4023320
