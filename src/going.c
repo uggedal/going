@@ -558,21 +558,23 @@ void exec_child(const char *cmd) {
   while ((cmd_word = strsep(&cmd_p, " ")) != NULL) {
     // If the word returned is the null byte we're dealing with repeating
     // spaces, so we skip it.
-    if (*cmd_word != '\0') {
-      // If we're in our first iteration we setup the two first slots
-      // of the argument vector which explains why we initialized the index
-      // to one.
-      if (i == 1) {
-        // The first and second argument will be the path to the binary
-        // we'll spawn.
-        argv[0] = argv[1] = cmd_word;
-      } else {
-        // The following arguments will be arguments given to the binary
-        // we'll spawn.
-        argv[i] = cmd_word;
-      }
-      i++;
+    if (*cmd_word == '\0') {
+      continue;
     }
+
+    // If we're in our first iteration we setup the two first slots
+    // of the argument vector which explains why we initialized the index
+    // to one.
+    if (i == 1) {
+      // The first and second argument will be the path to the binary
+      // we'll spawn.
+      argv[0] = argv[1] = cmd_word;
+    } else {
+      // The following arguments will be arguments given to the binary
+      // we'll spawn.
+      argv[i] = cmd_word;
+    }
+    i++;
   }
   // The argument vector given to `execvp(3)` needs to be null terminated.
   argv[i] = NULL;
